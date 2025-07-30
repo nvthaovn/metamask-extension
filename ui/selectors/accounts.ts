@@ -1,10 +1,11 @@
+import { AccountsControllerState } from '@metamask/accounts-controller';
 import {
-  EthAccountType,
   BtcAccountType,
+  EthAccountType,
   SolAccountType,
+  TrxAccountType,
 } from '@metamask/keyring-api';
 import { InternalAccount } from '@metamask/keyring-internal-api';
-import { AccountsControllerState } from '@metamask/accounts-controller';
 import { createSelector } from 'reselect';
 import { createDeepEqualSelector } from '../../shared/modules/selectors/util';
 import { isEqualCaseInsensitive } from '../../shared/modules/string-utils';
@@ -13,19 +14,29 @@ export type AccountsState = {
   metamask: AccountsControllerState;
 };
 
+export function isBitcoinAccount(account: InternalAccount) {
+  return Boolean(
+    account &&
+      Object.values(BtcAccountType).includes(account.type as BtcAccountType),
+  );
+}
+
 export function isSolanaAccount(account: InternalAccount) {
   const { DataAccount } = SolAccountType;
 
   return Boolean(account && account.type === DataAccount);
 }
 
-export function isNonEvmAccount(account: InternalAccount) {
-  const { DataAccount } = SolAccountType;
+export function isTronAccount(account: InternalAccount) {
+  const { Eoa } = TrxAccountType;
+  return Boolean(account && account.type === Eoa);
+}
 
-  return Boolean(
-    account &&
-      (Object.values(BtcAccountType).includes(account.type as BtcAccountType) ||
-        account.type === DataAccount),
+export function isNonEvmAccount(account: InternalAccount) {
+  return (
+    isBitcoinAccount(account) ||
+    isSolanaAccount(account) ||
+    isTronAccount(account)
   );
 }
 

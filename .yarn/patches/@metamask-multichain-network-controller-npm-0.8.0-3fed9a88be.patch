@@ -1,0 +1,186 @@
+diff --git a/dist/api/accounts-api.cjs b/dist/api/accounts-api.cjs
+index a106fbb2042fe66a84759facbf6efa45e5b6d2ec..85a3307abb053db35085b4414c636b30d4db562a 100644
+--- a/dist/api/accounts-api.cjs
++++ b/dist/api/accounts-api.cjs
+@@ -28,6 +28,9 @@ exports.MULTICHAIN_ALLOWED_ACTIVE_NETWORK_SCOPES = [
+     String(keyring_api_1.EthScope.Mainnet),
+     String(keyring_api_1.EthScope.Testnet),
+     String(keyring_api_1.EthScope.Eoa),
++    String(keyring_api_1.TrxScope.Mainnet),
++    String(keyring_api_1.TrxScope.Nile),
++    String(keyring_api_1.TrxScope.Shasta),
+ ];
+ /**
+  * Converts an internal account to an array of CAIP-10 account IDs.
+diff --git a/dist/api/accounts-api.mjs b/dist/api/accounts-api.mjs
+index 09317d0b85634177f48ebdb9529ab204e2f2eddb..c9f0bb2a0ef27c7874b6f1ddcd96646b1db25414 100644
+--- a/dist/api/accounts-api.mjs
++++ b/dist/api/accounts-api.mjs
+@@ -25,6 +25,9 @@ export const MULTICHAIN_ALLOWED_ACTIVE_NETWORK_SCOPES = [
+     String(EthScope.Mainnet),
+     String(EthScope.Testnet),
+     String(EthScope.Eoa),
++    String(TrxScope.Mainnet),
++    String(TrxScope.Nile),
++    String(TrxScope.Shasta),
+ ];
+ /**
+  * Converts an internal account to an array of CAIP-10 account IDs.
+diff --git a/dist/constants.cjs b/dist/constants.cjs
+index c2a8ba970e2a58c4e93c98ba7bf42fdfae0ece3b..4cde544b725ea2368bb9162372439f667ff61b14 100644
+--- a/dist/constants.cjs
++++ b/dist/constants.cjs
+@@ -9,6 +9,9 @@ exports.BTC_SIGNET_NATIVE_ASSET = `${keyring_api_1.BtcScope.Signet}/slip44:0`;
+ exports.SOL_NATIVE_ASSET = `${keyring_api_1.SolScope.Mainnet}/slip44:501`;
+ exports.SOL_TESTNET_NATIVE_ASSET = `${keyring_api_1.SolScope.Testnet}/slip44:501`;
+ exports.SOL_DEVNET_NATIVE_ASSET = `${keyring_api_1.SolScope.Devnet}/slip44:501`;
++exports.TRX_NATIVE_ASSET = `${keyring_api_1.TrxScope.Mainnet}/slip44:195`;
++exports.TRX_NILE_NATIVE_ASSET = `${keyring_api_1.TrxScope.Nile}/slip44:195`;
++exports.TRX_SHASTA_NATIVE_ASSET = `${keyring_api_1.TrxScope.Shasta}/slip44:195`;
+ /**
+  * Supported networks by the MultichainNetworkController
+  */
+@@ -49,6 +52,24 @@ exports.AVAILABLE_MULTICHAIN_NETWORK_CONFIGURATIONS = {
+         nativeCurrency: exports.SOL_DEVNET_NATIVE_ASSET,
+         isEvm: false,
+     },
++    [keyring_api_1.TrxScope.Mainnet]: {
++        chainId: keyring_api_1.TrxScope.Mainnet,
++        name: 'Tron',
++        nativeCurrency: exports.TRX_NATIVE_ASSET,
++        isEvm: false,
++    },
++    [keyring_api_1.TrxScope.Nile]: {
++        chainId: keyring_api_1.TrxScope.Nile,
++        name: 'Tron Nile',
++        nativeCurrency: exports.TRX_NILE_NATIVE_ASSET,
++        isEvm: false,
++    },
++    [keyring_api_1.TrxScope.Shasta]: {
++        chainId: keyring_api_1.TrxScope.Shasta,
++        name: 'Tron Shasta',
++        nativeCurrency: exports.TRX_SHASTA_NATIVE_ASSET,
++        isEvm: false,
++    },
+ };
+ /**
+  * Array of all the Non-EVM chain IDs.
+@@ -60,6 +81,8 @@ exports.NON_EVM_TESTNET_IDS = [
+     keyring_api_1.BtcScope.Signet,
+     keyring_api_1.SolScope.Testnet,
+     keyring_api_1.SolScope.Devnet,
++    keyring_api_1.TrxScope.Nile,
++    keyring_api_1.TrxScope.Shasta,
+ ];
+ /**
+  * Metadata for the supported networks.
+@@ -73,6 +96,10 @@ exports.NETWORKS_METADATA = {
+         features: [],
+         status: network_controller_1.NetworkStatus.Available,
+     },
++    [keyring_api_1.TrxScope.Mainnet]: {
++        features: [],
++        status: network_controller_1.NetworkStatus.Available,
++    },
+ };
+ /**
+  * Default state of the {@link MultichainNetworkController}.
+@@ -110,6 +137,9 @@ exports.MULTICHAIN_NETWORK_TICKER = {
+     [keyring_api_1.SolScope.Mainnet]: 'SOL',
+     [keyring_api_1.SolScope.Testnet]: 'tSOL',
+     [keyring_api_1.SolScope.Devnet]: 'dSOL',
++    [keyring_api_1.TrxScope.Mainnet]: 'TRX',
++    [keyring_api_1.TrxScope.Nile]: 'nTRX',
++    [keyring_api_1.TrxScope.Shasta]: 'sTRX',
+ };
+ /**
+  * Multichain network asset decimals for the supported networks.
+@@ -122,5 +152,8 @@ exports.MULTICHAIN_NETWORK_DECIMAL_PLACES = {
+     [keyring_api_1.SolScope.Mainnet]: 5,
+     [keyring_api_1.SolScope.Testnet]: 5,
+     [keyring_api_1.SolScope.Devnet]: 5,
++    [keyring_api_1.TrxScope.Mainnet]: 6,
++    [keyring_api_1.TrxScope.Nile]: 6,
++    [keyring_api_1.TrxScope.Shasta]: 6,
+ };
+ //# sourceMappingURL=constants.cjs.map
+\ No newline at end of file
+diff --git a/dist/constants.mjs b/dist/constants.mjs
+index fa324b8067e8701c82b87442db845718fcfe6f3e..a36a0d34a44be588c8f42179ecbd67f415fff52c 100644
+--- a/dist/constants.mjs
++++ b/dist/constants.mjs
+@@ -6,6 +6,9 @@ export const BTC_SIGNET_NATIVE_ASSET = `${BtcScope.Signet}/slip44:0`;
+ export const SOL_NATIVE_ASSET = `${SolScope.Mainnet}/slip44:501`;
+ export const SOL_TESTNET_NATIVE_ASSET = `${SolScope.Testnet}/slip44:501`;
+ export const SOL_DEVNET_NATIVE_ASSET = `${SolScope.Devnet}/slip44:501`;
++export const TRX_NATIVE_ASSET = `${TrxScope.Mainnet}/slip44:195`;
++export const TRX_NILE_NATIVE_ASSET = `${TrxScope.Nile}/slip44:195`;
++export const TRX_SHASTA_NATIVE_ASSET = `${TrxScope.Shasta}/slip44:195`;
+ /**
+  * Supported networks by the MultichainNetworkController
+  */
+@@ -46,6 +49,24 @@ export const AVAILABLE_MULTICHAIN_NETWORK_CONFIGURATIONS = {
+         nativeCurrency: SOL_DEVNET_NATIVE_ASSET,
+         isEvm: false,
+     },
++    [TrxScope.Mainnet]: {
++        chainId: TrxScope.Mainnet,
++        name: 'Tron',
++        nativeCurrency: TRX_NATIVE_ASSET,
++        isEvm: false,
++    },
++    [TrxScope.Nile]: {
++        chainId: TrxScope.Nile,
++        name: 'Tron Nile',
++        nativeCurrency: TRX_NILE_NATIVE_ASSET,
++        isEvm: false,
++    },
++    [TrxScope.Shasta]: {
++        chainId: TrxScope.Shasta,
++        name: 'Tron Shasta',
++        nativeCurrency: TRX_SHASTA_NATIVE_ASSET,
++        isEvm: false,
++    },
+ };
+ /**
+  * Array of all the Non-EVM chain IDs.
+@@ -57,6 +78,8 @@ export const NON_EVM_TESTNET_IDS = [
+     BtcScope.Signet,
+     SolScope.Testnet,
+     SolScope.Devnet,
++    TrxScope.Nile,
++    TrxScope.Shasta,
+ ];
+ /**
+  * Metadata for the supported networks.
+@@ -70,6 +93,10 @@ export const NETWORKS_METADATA = {
+         features: [],
+         status: NetworkStatus.Available,
+     },
++    [TrxScope.Mainnet]: {
++        features: [],
++        status: NetworkStatus.Available,
++    },
+ };
+ /**
+  * Default state of the {@link MultichainNetworkController}.
+@@ -106,6 +133,9 @@ export const MULTICHAIN_NETWORK_TICKER = {
+     [SolScope.Mainnet]: 'SOL',
+     [SolScope.Testnet]: 'tSOL',
+     [SolScope.Devnet]: 'dSOL',
++    [TrxScope.Mainnet]: 'TRX',
++    [TrxScope.Nile]: 'nTRX',
++    [TrxScope.Shasta]: 'sTRX',
+ };
+ /**
+  * Multichain network asset decimals for the supported networks.
+@@ -118,5 +148,8 @@ export const MULTICHAIN_NETWORK_DECIMAL_PLACES = {
+     [SolScope.Mainnet]: 5,
+     [SolScope.Testnet]: 5,
+     [SolScope.Devnet]: 5,
++    [TrxScope.Mainnet]: 6,
++    [TrxScope.Nile]: 6,
++    [TrxScope.Shasta]: 6,
+ };
+ //# sourceMappingURL=constants.mjs.map
+\ No newline at end of file

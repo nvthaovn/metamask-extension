@@ -24,6 +24,15 @@ export enum MultichainNativeAssets {
   // TODO: Fix in https://github.com/MetaMask/metamask-extension/issues/31860
   // eslint-disable-next-line @typescript-eslint/naming-convention
   SOLANA_TESTNET = `${MultichainNetworks.SOLANA_TESTNET}/slip44:501`,
+  // TODO: Fix in https://github.com/MetaMask/metamask-extension/issues/31860
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  TRON = `${MultichainNetworks.TRON}/slip44:195`,
+  // TODO: Fix in https://github.com/MetaMask/metamask-extension/issues/31860
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  TRON_NILE = `${MultichainNetworks.TRON_NILE}/slip44:195`,
+  // TODO: Fix in https://github.com/MetaMask/metamask-extension/issues/31860
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  TRON_SHASTA = `${MultichainNetworks.TRON_SHASTA}/slip44:195`,
 }
 
 /**
@@ -42,4 +51,7 @@ export const MULTICHAIN_NETWORK_TO_ASSET_TYPES: Record<
     MultichainNativeAssets.BITCOIN_TESTNET,
   ],
   [MultichainNetworks.BITCOIN_SIGNET]: [MultichainNativeAssets.BITCOIN_SIGNET],
+  [MultichainNetworks.TRON]: [MultichainNativeAssets.TRON],
+  [MultichainNetworks.TRON_NILE]: [MultichainNativeAssets.TRON_NILE],
+  [MultichainNetworks.TRON_SHASTA]: [MultichainNativeAssets.TRON_SHASTA],
 } as const;

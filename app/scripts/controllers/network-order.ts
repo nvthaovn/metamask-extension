@@ -1,4 +1,4 @@
-import { BtcScope, SolScope } from '@metamask/keyring-api';
+import { BtcScope, SolScope, TrxScope } from '@metamask/keyring-api';
 import { BaseController, RestrictedMessenger } from '@metamask/base-controller';
 import {
   isCaipChainId,
@@ -83,6 +83,9 @@ const defaultState: NetworkOrderControllerState = {
     [KnownCaipNamespace.Solana]: {
       [SolScope.Mainnet]: true,
     },
+    tron: {
+      [TrxScope.Mainnet]: true,
+    },
   },
 };
 
@@ -165,6 +168,7 @@ export class NetworkOrderController extends BaseController<
       const nonEvmChainIds: CaipChainId[] = [
         BtcScope.Mainnet,
         SolScope.Mainnet,
+        TrxScope.Mainnet,
       ];
 
       const newNetworks = chainIds

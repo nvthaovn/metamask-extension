@@ -1,0 +1,422 @@
+diff --git a/dist/account.cjs b/dist/account.cjs
+index 603a6d022a749a6d6143937c6aa10aba82ec4a4d..7c2e0e13da09234f5833455b5b6a0a5ba12bb720 100644
+--- a/dist/account.cjs
++++ b/dist/account.cjs
+@@ -50,6 +50,10 @@ function assertKeyringAccount(account) {
+             (0, superstruct_1.assert)(account, keyring_api_1.EthEoaAccountStruct);
+             return account;
+         }
++        case keyring_api_1.TrxAccountType.Eoa: {
++            (0, superstruct_1.assert)(account, keyring_api_1.TrxEoaAccountStruct);
++            return account;
++        }
+         default: {
+             // For now, we cannot much more than this (this should also, never happen)!
+             // NOTE: We could use a  "generic `KeyringAccount` type" here though.
+diff --git a/dist/account.cjs.map b/dist/account.cjs.map
+index b669e30a7a56b1780b404a4fd0bac3a81186d1b0..979b9194192acf0f29ee198aba64829ab2932c61 100644
+--- a/dist/account.cjs.map
++++ b/dist/account.cjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.cjs","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":";;;AAgCA,oDAyCC;AAQD,4CAYC;AA5FD,uDAY+B;AAC/B,uDAAiE;AAEjE,uDAA+D;AAE/D;;;GAGG;AACU,QAAA,sBAAsB,GAAG,IAAA,kBAAI,EAAC,kCAAoB,EAAE,CAAC,QAAQ,CAAC,CAAC,CAAC;AAI7E;;;;;GAKG;AACH,SAAgB,oBAAoB,CAElC,OAAgB;IAChB,gFAAgF;IAChF,sFAAsF;IACtF,cAAc;IACd,QAAQ,OAAO,CAAC,IAAI,EAAE,CAAC;QACrB,KAAK,4BAAc,CAAC,KAAK,CAAC,CAAC,CAAC;YAC1B,IAAA,oBAAM,EAAC,OAAO,EAAE,mCAAqB,CAAC,CAAC;YACvC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,MAAM,CAAC,CAAC,CAAC;YAC3B,IAAA,oBAAM,EAAC,OAAO,EAAE,oCAAsB,CAAC,CAAC;YACxC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,IAAA,oBAAM,EAAC,OAAO,EAAE,qCAAuB,CAAC,CAAC;YACzC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,IAAA,oBAAM,EAAC,OAAO,EAAE,iCAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,OAAO,CAAC,CAAC,CAAC;YACR,2EAA2E;YAC3E,qEAAqE;YACrE,MAAM,IAAI,KAAK,CAAC,0BAA0B,OAAO,CAAC,IAAI,GAAG,CAAC,CAAC;QAC7D,CAAC;IACH,CAAC;AACH,CAAC;AAED;;;;;GAKG;AACH,SAAgB,gBAAgB;AAC9B,6EAA6E;AAC7E,kBAAqD;IAErD,6FAA6F;IAC7F,0EAA0E;IAC1E,MAAM,OAAO,GAAG,IAAA,wBAAW,EAAC,kBAAkB,CAAC;QAC7C,CAAC,CAAC,IAAA,+BAAkB,EAAC,kBAAkB,CAAC;QACxC,CAAC,CAAC,kBAAkB,CAAC;IAEvB,yFAAyF;IACzF,OAAO,oBAAoB,CAAC,OAAO,CAAC,CAAC;AACvC,CAAC","sourcesContent":["import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';\nimport {\n  BtcAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthAccountType,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  KeyringAccountStruct,\n  SolAccountType,\n  SolDataAccountStruct,\n} from '@metamask/keyring-api';\nimport { assert, omit, type Infer } from '@metamask/superstruct';\n\nimport { isAccountV1, transformAccountV1 } from './migrations';\n\n/**\n * A `KeyringAccount` with some optional fields which can be used to keep\n * the retro-compatility with older version of keyring accounts/events.\n */\nexport const KeyringAccountV1Struct = omit(KeyringAccountStruct, ['scopes']);\n\nexport type KeyringAccountV1 = Infer<typeof KeyringAccountV1Struct>;\n\n/**\n * Assert that an account-like object matches its actual account type.\n *\n * @param account - The account-like object.\n * @returns The account as normal `KeyringAccount`.\n */\nexport function assertKeyringAccount<\n  Account extends { type: KeyringAccountType },\n>(account: Account): KeyringAccount {\n  // TODO: We should use a `selectiveUnion` for this and probably use it to define\n  // the `KeyringAccount`. This would also required to have a \"generic `KeyringAccount`\"\n  // definition.\n  switch (account.type) {\n    case BtcAccountType.P2pkh: {\n      assert(account, BtcP2pkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2sh: {\n      assert(account, BtcP2shAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2wpkh: {\n      assert(account, BtcP2wpkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2tr: {\n      assert(account, BtcP2trAccountStruct);\n      return account;\n    }\n    case SolAccountType.DataAccount: {\n      assert(account, SolDataAccountStruct);\n      return account;\n    }\n    case EthAccountType.Erc4337: {\n      assert(account, EthErc4337AccountStruct);\n      return account;\n    }\n    case EthAccountType.Eoa: {\n      assert(account, EthEoaAccountStruct);\n      return account;\n    }\n    default: {\n      // For now, we cannot much more than this (this should also, never happen)!\n      // NOTE: We could use a  \"generic `KeyringAccount` type\" here though.\n      throw new Error(`Unknown account type: '${account.type}'`);\n    }\n  }\n}\n\n/**\n * Transform any versionned account to a `KeyringAccount`.\n *\n * @param accountToTransform - The account to transform.\n * @returns A valid transformed `KeyringAccount`.\n */\nexport function transformAccount(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  accountToTransform: KeyringAccountV1 | KeyringAccount,\n): KeyringAccount {\n  // To keep the retro-compatibility with older keyring-api versions, we identify the account's\n  // version and transform it to the latest `KeyringAccount` representation.\n  const account = isAccountV1(accountToTransform)\n    ? transformAccountV1(accountToTransform)\n    : accountToTransform;\n\n  // We still assert that the converted account is valid according to their account's type.\n  return assertKeyringAccount(account);\n}\n"]}
+\ No newline at end of file
++{"version":3,"file":"account.cjs","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":";;;AAkCA,oDA6CC;AAQD,4CAYC;AAlGD,uDAc+B;AAC/B,uDAAiE;AAEjE,uDAA+D;AAE/D;;;GAGG;AACU,QAAA,sBAAsB,GAAG,IAAA,kBAAI,EAAC,kCAAoB,EAAE,CAAC,QAAQ,CAAC,CAAC,CAAC;AAI7E;;;;;GAKG;AACH,SAAgB,oBAAoB,CAElC,OAAgB;IAChB,gFAAgF;IAChF,sFAAsF;IACtF,cAAc;IACd,QAAQ,OAAO,CAAC,IAAI,EAAE,CAAC;QACrB,KAAK,4BAAc,CAAC,KAAK,CAAC,CAAC,CAAC;YAC1B,IAAA,oBAAM,EAAC,OAAO,EAAE,mCAAqB,CAAC,CAAC;YACvC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,MAAM,CAAC,CAAC,CAAC;YAC3B,IAAA,oBAAM,EAAC,OAAO,EAAE,oCAAsB,CAAC,CAAC;YACxC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,IAAA,oBAAM,EAAC,OAAO,EAAE,kCAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,IAAA,oBAAM,EAAC,OAAO,EAAE,qCAAuB,CAAC,CAAC;YACzC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,IAAA,oBAAM,EAAC,OAAO,EAAE,iCAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,IAAA,oBAAM,EAAC,OAAO,EAAE,iCAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,OAAO,CAAC,CAAC,CAAC;YACR,2EAA2E;YAC3E,qEAAqE;YACrE,MAAM,IAAI,KAAK,CAAC,0BAA0B,OAAO,CAAC,IAAI,GAAG,CAAC,CAAC;QAC7D,CAAC;IACH,CAAC;AACH,CAAC;AAED;;;;;GAKG;AACH,SAAgB,gBAAgB;AAC9B,6EAA6E;AAC7E,kBAAqD;IAErD,6FAA6F;IAC7F,0EAA0E;IAC1E,MAAM,OAAO,GAAG,IAAA,wBAAW,EAAC,kBAAkB,CAAC;QAC7C,CAAC,CAAC,IAAA,+BAAkB,EAAC,kBAAkB,CAAC;QACxC,CAAC,CAAC,kBAAkB,CAAC;IAEvB,yFAAyF;IACzF,OAAO,oBAAoB,CAAC,OAAO,CAAC,CAAC;AACvC,CAAC","sourcesContent":["import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';\nimport {\n  BtcAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthAccountType,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  KeyringAccountStruct,\n  SolAccountType,\n  SolDataAccountStruct,\n  TrxAccountType,\n  TrxEoaAccountStruct,\n} from '@metamask/keyring-api';\nimport { assert, omit, type Infer } from '@metamask/superstruct';\n\nimport { isAccountV1, transformAccountV1 } from './migrations';\n\n/**\n * A `KeyringAccount` with some optional fields which can be used to keep\n * the retro-compatility with older version of keyring accounts/events.\n */\nexport const KeyringAccountV1Struct = omit(KeyringAccountStruct, ['scopes']);\n\nexport type KeyringAccountV1 = Infer<typeof KeyringAccountV1Struct>;\n\n/**\n * Assert that an account-like object matches its actual account type.\n *\n * @param account - The account-like object.\n * @returns The account as normal `KeyringAccount`.\n */\nexport function assertKeyringAccount<\n  Account extends { type: KeyringAccountType },\n>(account: Account): KeyringAccount {\n  // TODO: We should use a `selectiveUnion` for this and probably use it to define\n  // the `KeyringAccount`. This would also required to have a \"generic `KeyringAccount`\"\n  // definition.\n  switch (account.type) {\n    case BtcAccountType.P2pkh: {\n      assert(account, BtcP2pkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2sh: {\n      assert(account, BtcP2shAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2wpkh: {\n      assert(account, BtcP2wpkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2tr: {\n      assert(account, BtcP2trAccountStruct);\n      return account;\n    }\n    case SolAccountType.DataAccount: {\n      assert(account, SolDataAccountStruct);\n      return account;\n    }\n    case EthAccountType.Erc4337: {\n      assert(account, EthErc4337AccountStruct);\n      return account;\n    }\n    case EthAccountType.Eoa: {\n      assert(account, EthEoaAccountStruct);\n      return account;\n    }\n    case TrxAccountType.Eoa: {\n      assert(account, TrxEoaAccountStruct);\n      return account;\n    }\n    default: {\n      // For now, we cannot much more than this (this should also, never happen)!\n      // NOTE: We could use a  \"generic `KeyringAccount` type\" here though.\n      throw new Error(`Unknown account type: '${account.type}'`);\n    }\n  }\n}\n\n/**\n * Transform any versionned account to a `KeyringAccount`.\n *\n * @param accountToTransform - The account to transform.\n * @returns A valid transformed `KeyringAccount`.\n */\nexport function transformAccount(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  accountToTransform: KeyringAccountV1 | KeyringAccount,\n): KeyringAccount {\n  // To keep the retro-compatibility with older keyring-api versions, we identify the account's\n  // version and transform it to the latest `KeyringAccount` representation.\n  const account = isAccountV1(accountToTransform)\n    ? transformAccountV1(accountToTransform)\n    : accountToTransform;\n\n  // We still assert that the converted account is valid according to their account's type.\n  return assertKeyringAccount(account);\n}\n"]}
+\ No newline at end of file
+diff --git a/dist/account.d.cts b/dist/account.d.cts
+index 6c5b9db6c1b5a8a78b694e208b8a1af5ce13d615..9af7944da64b175e1e958c282d6125d9460131bd 100644
+--- a/dist/account.d.cts
++++ b/dist/account.d.cts
+@@ -6,13 +6,13 @@ import { type Infer } from "@metamask/superstruct";
+  */
+ export declare const KeyringAccountV1Struct: import("@metamask/superstruct").Struct<{
+     id: string;
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     address: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     methods: string[];
+ }, Omit<{
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -20,6 +20,7 @@ export declare const KeyringAccountV1Struct: import("@metamask/superstruct").Str
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/account.d.cts.map b/dist/account.d.cts.map
+index 9e975dbdba0ebbbf904012a72b19ebcd152711e4..c42e173293071491064470e90f995c3e2edbf6bc 100644
+--- a/dist/account.d.cts.map
++++ b/dist/account.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.d.cts","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,kBAAkB,EAAE,8BAA8B;AAchF,OAAO,EAAgB,KAAK,KAAK,EAAE,8BAA8B;AAIjE;;;GAGG;AACH,eAAO,MAAM,sBAAsB;;;;;;;;;;;;;;;;;;;;;aAAyC,CAAC;AAE7E,MAAM,MAAM,gBAAgB,GAAG,KAAK,CAAC,OAAO,sBAAsB,CAAC,CAAC;AAEpE;;;;;GAKG;AACH,wBAAgB,oBAAoB,CAClC,OAAO,SAAS;IAAE,IAAI,EAAE,kBAAkB,CAAA;CAAE,EAC5C,OAAO,EAAE,OAAO,GAAG,cAAc,CAuClC;AAED;;;;;GAKG;AACH,wBAAgB,gBAAgB,CAE9B,kBAAkB,EAAE,gBAAgB,GAAG,cAAc,GACpD,cAAc,CAShB"}
+\ No newline at end of file
++{"version":3,"file":"account.d.cts","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,kBAAkB,EAAE,8BAA8B;AAgBhF,OAAO,EAAgB,KAAK,KAAK,EAAE,8BAA8B;AAIjE;;;GAGG;AACH,eAAO,MAAM,sBAAsB;;;;;;;;;;;;;;;;;;;;;;aAAyC,CAAC;AAE7E,MAAM,MAAM,gBAAgB,GAAG,KAAK,CAAC,OAAO,sBAAsB,CAAC,CAAC;AAEpE;;;;;GAKG;AACH,wBAAgB,oBAAoB,CAClC,OAAO,SAAS;IAAE,IAAI,EAAE,kBAAkB,CAAA;CAAE,EAC5C,OAAO,EAAE,OAAO,GAAG,cAAc,CA2ClC;AAED;;;;;GAKG;AACH,wBAAgB,gBAAgB,CAE9B,kBAAkB,EAAE,gBAAgB,GAAG,cAAc,GACpD,cAAc,CAShB"}
+\ No newline at end of file
+diff --git a/dist/account.d.mts b/dist/account.d.mts
+index 9ab68b3c0978ad4955eb8349be410b6802ece0bd..98a6f678d9f45c1e41ea46b7407a25e394ab7041 100644
+--- a/dist/account.d.mts
++++ b/dist/account.d.mts
+@@ -6,13 +6,13 @@ import { type Infer } from "@metamask/superstruct";
+  */
+ export declare const KeyringAccountV1Struct: import("@metamask/superstruct").Struct<{
+     id: string;
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     address: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     methods: string[];
+ }, Omit<{
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -20,6 +20,7 @@ export declare const KeyringAccountV1Struct: import("@metamask/superstruct").Str
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/account.d.mts.map b/dist/account.d.mts.map
+index 40fa43ec31ff93fbd397f0d9f9af67c2eef2e511..cc2ed0bbd4875f0a9427a99b6cd3d6c99498097c 100644
+--- a/dist/account.d.mts.map
++++ b/dist/account.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.d.mts","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,kBAAkB,EAAE,8BAA8B;AAchF,OAAO,EAAgB,KAAK,KAAK,EAAE,8BAA8B;AAIjE;;;GAGG;AACH,eAAO,MAAM,sBAAsB;;;;;;;;;;;;;;;;;;;;;aAAyC,CAAC;AAE7E,MAAM,MAAM,gBAAgB,GAAG,KAAK,CAAC,OAAO,sBAAsB,CAAC,CAAC;AAEpE;;;;;GAKG;AACH,wBAAgB,oBAAoB,CAClC,OAAO,SAAS;IAAE,IAAI,EAAE,kBAAkB,CAAA;CAAE,EAC5C,OAAO,EAAE,OAAO,GAAG,cAAc,CAuClC;AAED;;;;;GAKG;AACH,wBAAgB,gBAAgB,CAE9B,kBAAkB,EAAE,gBAAgB,GAAG,cAAc,GACpD,cAAc,CAShB"}
+\ No newline at end of file
++{"version":3,"file":"account.d.mts","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,kBAAkB,EAAE,8BAA8B;AAgBhF,OAAO,EAAgB,KAAK,KAAK,EAAE,8BAA8B;AAIjE;;;GAGG;AACH,eAAO,MAAM,sBAAsB;;;;;;;;;;;;;;;;;;;;;;aAAyC,CAAC;AAE7E,MAAM,MAAM,gBAAgB,GAAG,KAAK,CAAC,OAAO,sBAAsB,CAAC,CAAC;AAEpE;;;;;GAKG;AACH,wBAAgB,oBAAoB,CAClC,OAAO,SAAS;IAAE,IAAI,EAAE,kBAAkB,CAAA;CAAE,EAC5C,OAAO,EAAE,OAAO,GAAG,cAAc,CA2ClC;AAED;;;;;GAKG;AACH,wBAAgB,gBAAgB,CAE9B,kBAAkB,EAAE,gBAAgB,GAAG,cAAc,GACpD,cAAc,CAShB"}
+\ No newline at end of file
+diff --git a/dist/account.mjs b/dist/account.mjs
+index f63a58ce0a766464ab796d66798d4d639aa87250..98beb59978cab22447555f6122d128a5cd071003 100644
+--- a/dist/account.mjs
++++ b/dist/account.mjs
+@@ -1,4 +1,4 @@
+-import { BtcAccountType, BtcP2pkhAccountStruct, BtcP2shAccountStruct, BtcP2wpkhAccountStruct, BtcP2trAccountStruct, EthAccountType, EthEoaAccountStruct, EthErc4337AccountStruct, KeyringAccountStruct, SolAccountType, SolDataAccountStruct } from "@metamask/keyring-api";
++import { BtcAccountType, BtcP2pkhAccountStruct, BtcP2shAccountStruct, BtcP2wpkhAccountStruct, BtcP2trAccountStruct, EthAccountType, EthEoaAccountStruct, EthErc4337AccountStruct, KeyringAccountStruct, SolAccountType, SolDataAccountStruct, TrxAccountType, TrxEoaAccountStruct } from "@metamask/keyring-api";
+ import { assert, omit } from "@metamask/superstruct";
+ import { isAccountV1, transformAccountV1 } from "./migrations/index.mjs";
+ /**
+@@ -45,6 +45,10 @@ export function assertKeyringAccount(account) {
+             assert(account, EthEoaAccountStruct);
+             return account;
+         }
++        case TrxAccountType.Eoa: {
++            assert(account, TrxEoaAccountStruct);
++            return account;
++        }
+         default: {
+             // For now, we cannot much more than this (this should also, never happen)!
+             // NOTE: We could use a  "generic `KeyringAccount` type" here though.
+diff --git a/dist/account.mjs.map b/dist/account.mjs.map
+index be27d112c1d01abd96e6845aafb649a23b3c8fb6..8b384ee0c88494436310c1cf818d883c1b5ff5b5 100644
+--- a/dist/account.mjs.map
++++ b/dist/account.mjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.mjs","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AACA,OAAO,EACL,cAAc,EACd,qBAAqB,EACrB,oBAAoB,EACpB,sBAAsB,EACtB,oBAAoB,EACpB,cAAc,EACd,mBAAmB,EACnB,uBAAuB,EACvB,oBAAoB,EACpB,cAAc,EACd,oBAAoB,EACrB,8BAA8B;AAC/B,OAAO,EAAE,MAAM,EAAE,IAAI,EAAc,8BAA8B;AAEjE,OAAO,EAAE,WAAW,EAAE,kBAAkB,EAAE,+BAAqB;AAE/D;;;GAGG;AACH,MAAM,CAAC,MAAM,sBAAsB,GAAG,IAAI,CAAC,oBAAoB,EAAE,CAAC,QAAQ,CAAC,CAAC,CAAC;AAI7E;;;;;GAKG;AACH,MAAM,UAAU,oBAAoB,CAElC,OAAgB;IAChB,gFAAgF;IAChF,sFAAsF;IACtF,cAAc;IACd,QAAQ,OAAO,CAAC,IAAI,EAAE,CAAC;QACrB,KAAK,cAAc,CAAC,KAAK,CAAC,CAAC,CAAC;YAC1B,MAAM,CAAC,OAAO,EAAE,qBAAqB,CAAC,CAAC;YACvC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,MAAM,CAAC,CAAC,CAAC;YAC3B,MAAM,CAAC,OAAO,EAAE,sBAAsB,CAAC,CAAC;YACxC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,MAAM,CAAC,OAAO,EAAE,uBAAuB,CAAC,CAAC;YACzC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,MAAM,CAAC,OAAO,EAAE,mBAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,OAAO,CAAC,CAAC,CAAC;YACR,2EAA2E;YAC3E,qEAAqE;YACrE,MAAM,IAAI,KAAK,CAAC,0BAA0B,OAAO,CAAC,IAAI,GAAG,CAAC,CAAC;QAC7D,CAAC;IACH,CAAC;AACH,CAAC;AAED;;;;;GAKG;AACH,MAAM,UAAU,gBAAgB;AAC9B,6EAA6E;AAC7E,kBAAqD;IAErD,6FAA6F;IAC7F,0EAA0E;IAC1E,MAAM,OAAO,GAAG,WAAW,CAAC,kBAAkB,CAAC;QAC7C,CAAC,CAAC,kBAAkB,CAAC,kBAAkB,CAAC;QACxC,CAAC,CAAC,kBAAkB,CAAC;IAEvB,yFAAyF;IACzF,OAAO,oBAAoB,CAAC,OAAO,CAAC,CAAC;AACvC,CAAC","sourcesContent":["import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';\nimport {\n  BtcAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthAccountType,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  KeyringAccountStruct,\n  SolAccountType,\n  SolDataAccountStruct,\n} from '@metamask/keyring-api';\nimport { assert, omit, type Infer } from '@metamask/superstruct';\n\nimport { isAccountV1, transformAccountV1 } from './migrations';\n\n/**\n * A `KeyringAccount` with some optional fields which can be used to keep\n * the retro-compatility with older version of keyring accounts/events.\n */\nexport const KeyringAccountV1Struct = omit(KeyringAccountStruct, ['scopes']);\n\nexport type KeyringAccountV1 = Infer<typeof KeyringAccountV1Struct>;\n\n/**\n * Assert that an account-like object matches its actual account type.\n *\n * @param account - The account-like object.\n * @returns The account as normal `KeyringAccount`.\n */\nexport function assertKeyringAccount<\n  Account extends { type: KeyringAccountType },\n>(account: Account): KeyringAccount {\n  // TODO: We should use a `selectiveUnion` for this and probably use it to define\n  // the `KeyringAccount`. This would also required to have a \"generic `KeyringAccount`\"\n  // definition.\n  switch (account.type) {\n    case BtcAccountType.P2pkh: {\n      assert(account, BtcP2pkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2sh: {\n      assert(account, BtcP2shAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2wpkh: {\n      assert(account, BtcP2wpkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2tr: {\n      assert(account, BtcP2trAccountStruct);\n      return account;\n    }\n    case SolAccountType.DataAccount: {\n      assert(account, SolDataAccountStruct);\n      return account;\n    }\n    case EthAccountType.Erc4337: {\n      assert(account, EthErc4337AccountStruct);\n      return account;\n    }\n    case EthAccountType.Eoa: {\n      assert(account, EthEoaAccountStruct);\n      return account;\n    }\n    default: {\n      // For now, we cannot much more than this (this should also, never happen)!\n      // NOTE: We could use a  \"generic `KeyringAccount` type\" here though.\n      throw new Error(`Unknown account type: '${account.type}'`);\n    }\n  }\n}\n\n/**\n * Transform any versionned account to a `KeyringAccount`.\n *\n * @param accountToTransform - The account to transform.\n * @returns A valid transformed `KeyringAccount`.\n */\nexport function transformAccount(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  accountToTransform: KeyringAccountV1 | KeyringAccount,\n): KeyringAccount {\n  // To keep the retro-compatibility with older keyring-api versions, we identify the account's\n  // version and transform it to the latest `KeyringAccount` representation.\n  const account = isAccountV1(accountToTransform)\n    ? transformAccountV1(accountToTransform)\n    : accountToTransform;\n\n  // We still assert that the converted account is valid according to their account's type.\n  return assertKeyringAccount(account);\n}\n"]}
+\ No newline at end of file
++{"version":3,"file":"account.mjs","sourceRoot":"","sources":["../src/account.ts"],"names":[],"mappings":"AACA,OAAO,EACL,cAAc,EACd,qBAAqB,EACrB,oBAAoB,EACpB,sBAAsB,EACtB,oBAAoB,EACpB,cAAc,EACd,mBAAmB,EACnB,uBAAuB,EACvB,oBAAoB,EACpB,cAAc,EACd,oBAAoB,EACpB,cAAc,EACd,mBAAmB,EACpB,8BAA8B;AAC/B,OAAO,EAAE,MAAM,EAAE,IAAI,EAAc,8BAA8B;AAEjE,OAAO,EAAE,WAAW,EAAE,kBAAkB,EAAE,+BAAqB;AAE/D;;;GAGG;AACH,MAAM,CAAC,MAAM,sBAAsB,GAAG,IAAI,CAAC,oBAAoB,EAAE,CAAC,QAAQ,CAAC,CAAC,CAAC;AAI7E;;;;;GAKG;AACH,MAAM,UAAU,oBAAoB,CAElC,OAAgB;IAChB,gFAAgF;IAChF,sFAAsF;IACtF,cAAc;IACd,QAAQ,OAAO,CAAC,IAAI,EAAE,CAAC;QACrB,KAAK,cAAc,CAAC,KAAK,CAAC,CAAC,CAAC;YAC1B,MAAM,CAAC,OAAO,EAAE,qBAAqB,CAAC,CAAC;YACvC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,MAAM,CAAC,CAAC,CAAC;YAC3B,MAAM,CAAC,OAAO,EAAE,sBAAsB,CAAC,CAAC;YACxC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,MAAM,CAAC,OAAO,EAAE,oBAAoB,CAAC,CAAC;YACtC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,MAAM,CAAC,OAAO,EAAE,uBAAuB,CAAC,CAAC;YACzC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,MAAM,CAAC,OAAO,EAAE,mBAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,MAAM,CAAC,OAAO,EAAE,mBAAmB,CAAC,CAAC;YACrC,OAAO,OAAO,CAAC;QACjB,CAAC;QACD,OAAO,CAAC,CAAC,CAAC;YACR,2EAA2E;YAC3E,qEAAqE;YACrE,MAAM,IAAI,KAAK,CAAC,0BAA0B,OAAO,CAAC,IAAI,GAAG,CAAC,CAAC;QAC7D,CAAC;IACH,CAAC;AACH,CAAC;AAED;;;;;GAKG;AACH,MAAM,UAAU,gBAAgB;AAC9B,6EAA6E;AAC7E,kBAAqD;IAErD,6FAA6F;IAC7F,0EAA0E;IAC1E,MAAM,OAAO,GAAG,WAAW,CAAC,kBAAkB,CAAC;QAC7C,CAAC,CAAC,kBAAkB,CAAC,kBAAkB,CAAC;QACxC,CAAC,CAAC,kBAAkB,CAAC;IAEvB,yFAAyF;IACzF,OAAO,oBAAoB,CAAC,OAAO,CAAC,CAAC;AACvC,CAAC","sourcesContent":["import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';\nimport {\n  BtcAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthAccountType,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  KeyringAccountStruct,\n  SolAccountType,\n  SolDataAccountStruct,\n  TrxAccountType,\n  TrxEoaAccountStruct,\n} from '@metamask/keyring-api';\nimport { assert, omit, type Infer } from '@metamask/superstruct';\n\nimport { isAccountV1, transformAccountV1 } from './migrations';\n\n/**\n * A `KeyringAccount` with some optional fields which can be used to keep\n * the retro-compatility with older version of keyring accounts/events.\n */\nexport const KeyringAccountV1Struct = omit(KeyringAccountStruct, ['scopes']);\n\nexport type KeyringAccountV1 = Infer<typeof KeyringAccountV1Struct>;\n\n/**\n * Assert that an account-like object matches its actual account type.\n *\n * @param account - The account-like object.\n * @returns The account as normal `KeyringAccount`.\n */\nexport function assertKeyringAccount<\n  Account extends { type: KeyringAccountType },\n>(account: Account): KeyringAccount {\n  // TODO: We should use a `selectiveUnion` for this and probably use it to define\n  // the `KeyringAccount`. This would also required to have a \"generic `KeyringAccount`\"\n  // definition.\n  switch (account.type) {\n    case BtcAccountType.P2pkh: {\n      assert(account, BtcP2pkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2sh: {\n      assert(account, BtcP2shAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2wpkh: {\n      assert(account, BtcP2wpkhAccountStruct);\n      return account;\n    }\n    case BtcAccountType.P2tr: {\n      assert(account, BtcP2trAccountStruct);\n      return account;\n    }\n    case SolAccountType.DataAccount: {\n      assert(account, SolDataAccountStruct);\n      return account;\n    }\n    case EthAccountType.Erc4337: {\n      assert(account, EthErc4337AccountStruct);\n      return account;\n    }\n    case EthAccountType.Eoa: {\n      assert(account, EthEoaAccountStruct);\n      return account;\n    }\n    case TrxAccountType.Eoa: {\n      assert(account, TrxEoaAccountStruct);\n      return account;\n    }\n    default: {\n      // For now, we cannot much more than this (this should also, never happen)!\n      // NOTE: We could use a  \"generic `KeyringAccount` type\" here though.\n      throw new Error(`Unknown account type: '${account.type}'`);\n    }\n  }\n}\n\n/**\n * Transform any versionned account to a `KeyringAccount`.\n *\n * @param accountToTransform - The account to transform.\n * @returns A valid transformed `KeyringAccount`.\n */\nexport function transformAccount(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  accountToTransform: KeyringAccountV1 | KeyringAccount,\n): KeyringAccount {\n  // To keep the retro-compatibility with older keyring-api versions, we identify the account's\n  // version and transform it to the latest `KeyringAccount` representation.\n  const account = isAccountV1(accountToTransform)\n    ? transformAccountV1(accountToTransform)\n    : accountToTransform;\n\n  // We still assert that the converted account is valid according to their account's type.\n  return assertKeyringAccount(account);\n}\n"]}
+\ No newline at end of file
+diff --git a/dist/events.d.cts b/dist/events.d.cts
+index 0adb32a5e11103cb151714e5d44ac27deee336c3..5d3f434830217541d80bfd8fb49de8d5d85c530c 100644
+--- a/dist/events.d.cts
++++ b/dist/events.d.cts
+@@ -2,7 +2,7 @@ import { AccountDeletedEventStruct, RequestApprovedEventStruct, RequestRejectedE
+ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").Struct<{
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -10,7 +10,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -26,7 +26,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+ }, {
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -34,7 +34,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -47,7 +47,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+         displayAccountNameSuggestion?: boolean;
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -55,7 +55,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -74,7 +74,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").Struct<{
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -82,7 +82,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -92,7 +92,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+ }, {
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -100,14 +100,14 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+         };
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -115,7 +115,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+diff --git a/dist/events.d.mts b/dist/events.d.mts
+index ba68d3bb3641a44356c5afae5e4cfd250d2cbbf7..4b4ec36adc6a33b0346566f8fd50f666d1a33332 100644
+--- a/dist/events.d.mts
++++ b/dist/events.d.mts
+@@ -2,7 +2,7 @@ import { AccountDeletedEventStruct, RequestApprovedEventStruct, RequestRejectedE
+ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").Struct<{
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -10,7 +10,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -26,7 +26,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+ }, {
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -34,7 +34,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -47,7 +47,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+         displayAccountNameSuggestion?: boolean;
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -55,7 +55,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -74,7 +74,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").Struct<{
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -82,7 +82,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+@@ -92,7 +92,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+ }, {
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -100,14 +100,14 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+         };
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -115,7 +115,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         } | {
+             id: string;
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             address: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             methods: string[];
+diff --git a/dist/migrations/v1.cjs b/dist/migrations/v1.cjs
+index a168798fc71d5015607547c93f3ee71d94ed6286..4a56566e49bf335c5f194a9e93511d42003110f7 100644
+--- a/dist/migrations/v1.cjs
++++ b/dist/migrations/v1.cjs
+@@ -57,6 +57,10 @@ function getScopesForAccountV1(accountV1) {
+             // Solana account supports multiple chains.
+             return [keyring_api_1.SolScope.Mainnet, keyring_api_1.SolScope.Testnet, keyring_api_1.SolScope.Devnet];
+         }
++        case keyring_api_1.TrxAccountType.Eoa: {
++            // TRON account supports multiple chains.
++            return [keyring_api_1.TrxScope.Mainnet, keyring_api_1.TrxScope.Nile, keyring_api_1.TrxScope.Shasta];
++        }
+         default:
+             // We re-use EOA scopes if we don't know what to do for now.
+             return [keyring_api_1.EthScope.Eoa];
+diff --git a/dist/migrations/v1.cjs.map b/dist/migrations/v1.cjs.map
+index 7491fb7e3a4e9e67385f074d5451c90e79a3e5c8..72728d172aa4e95336029231f08f1ae37698e464 100644
+--- a/dist/migrations/v1.cjs.map
++++ b/dist/migrations/v1.cjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"v1.cjs","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":";;AAwBA,kCAKC;AAQD,sDAsCC;AAWD,gDAmBC;AAUD,4CAUC;AA7HD,uDAO+B;AAE/B,2DAA8D;AAC9D,uDAA2C;AAE3C,4CAIoB;AAEpB;;;;;GAKG;AACH,SAAgB,WAAW;AACzB,6EAA6E;AAC7E,OAA0C;IAE1C,OAAO,IAAA,gBAAE,EAAC,OAAO,EAAE,gCAAsB,CAAC,CAAC;AAC7C,CAAC;AAED;;;;;GAKG;AACH,SAAgB,qBAAqB,CACnC,SAA2B;IAE3B,QAAQ,SAAS,CAAC,IAAI,EAAE,CAAC;QACvB,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,mEAAmE;YACnE,6DAA6D;YAC7D,EAAE;YACF,0DAA0D;YAC1D,OAAO,CAAC,sBAAQ,CAAC,GAAG,CAAC,CAAC;QACxB,CAAC;QACD,KAAK,4BAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,sBAAsB;YACtB,wGAAwG;YACxG,0DAA0D;YAC1D,2GAA2G;YAC3G,iBAAiB;YACjB,OAAO,CAAC,sBAAQ,CAAC,OAAO,CAAC,CAAC;QAC5B,CAAC;QACD,KAAK,4BAAc,CAAC,KAAK,CAAC;QAC1B,KAAK,4BAAc,CAAC,IAAI,CAAC;QACzB,KAAK,4BAAc,CAAC,MAAM,CAAC;QAC3B,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,0DAA0D;YAC1D,OAAO;gBACL,IAAA,mCAAmB,EAAC,SAAS,CAAC,OAAO,CAAC;oBACpC,CAAC,CAAC,sBAAQ,CAAC,OAAO;oBAClB,CAAC,CAAC,sBAAQ,CAAC,OAAO;aACrB,CAAC;QACJ,CAAC;QACD,KAAK,4BAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,2CAA2C;YAC3C,OAAO,CAAC,sBAAQ,CAAC,OAAO,EAAE,sBAAQ,CAAC,OAAO,EAAE,sBAAQ,CAAC,MAAM,CAAC,CAAC;QAC/D,CAAC;QACD;YACE,4DAA4D;YAC5D,OAAO,CAAC,sBAAQ,CAAC,GAAG,CAAC,CAAC;IAC1B,CAAC;AACH,CAAC;AAED;;;;;;;;GAQG;AACH,SAAgB,kBAAkB,CAChC,SAA2B;IAE3B,MAAM,EAAE,IAAI,EAAE,GAAG,SAAS,CAAC;IAE3B,0EAA0E;IAC1E,yEAAyE;IACzE,wEAAwE;IACxE,0BAA0B;IAC1B,IAAI,IAAI,KAAK,4BAAc,CAAC,GAAG,EAAE,CAAC;QAChC,OAAO;YACL,GAAG,SAAS;YACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;SACzC,CAAC;IACJ,CAAC;IAED,iFAAiF;IACjF,0DAA0D;IAC1D,OAAO,IAAA,8BAAoB,EAAC,SAAS,CAAC,CAAC;AACzC,CAAC;AAED;;;;;;;GAOG;AACH,SAAgB,gBAAgB,CAAC,SAA2B;IAC1D,IAAI,CAAC,WAAW,CAAC,SAAS,CAAC,EAAE,CAAC;QAC5B,8BAA8B;QAC9B,OAAO,SAA2B,CAAC;IACrC,CAAC;IAED,OAAO;QACL,GAAG,SAAS;QACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;KACzC,CAAC;AACJ,CAAC","sourcesContent":["import {\n  BtcAccountType,\n  EthAccountType,\n  SolAccountType,\n  BtcScope,\n  EthScope,\n  SolScope,\n} from '@metamask/keyring-api';\nimport type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';\nimport { isBtcMainnetAddress } from '@metamask/keyring-utils';\nimport { is } from '@metamask/superstruct';\n\nimport {\n  assertKeyringAccount,\n  KeyringAccountV1Struct,\n  type KeyringAccountV1,\n} from '../account';\n\n/**\n * Checks if an account is an `KeyringAccount` v1.\n *\n * @param account - A v1 account to check.\n * @returns True if the account is v1, false otherwise.\n */\nexport function isAccountV1(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  account: KeyringAccountV1 | KeyringAccount,\n): boolean {\n  return is(account, KeyringAccountV1Struct);\n}\n\n/**\n * Gets default scopes for a v1 account.\n *\n * @param accountV1 - A v1 account.\n * @returns The list of scopes for that accounts.\n */\nexport function getScopesForAccountV1(\n  accountV1: KeyringAccountV1,\n): CaipChainId[] {\n  switch (accountV1.type) {\n    case EthAccountType.Eoa: {\n      // EVM EOA account are compatible with any EVM networks, we use the\n      // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.\n      //\n      // See: https://namespaces.chainagnostic.org/eip155/caip10\n      return [EthScope.Eoa];\n    }\n    case EthAccountType.Erc4337: {\n      // EVM Erc4337 account\n      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default\n      // to testnet since we cannot really \"guess\" it from here.\n      // Also, there's no official Snap as of today that uses this account type. So this case should never happen\n      // in production.\n      return [EthScope.Testnet];\n    }\n    case BtcAccountType.P2pkh:\n    case BtcAccountType.P2sh:\n    case BtcAccountType.P2wpkh:\n    case BtcAccountType.P2tr: {\n      // Bitcoin uses different accounts for testnet and mainnet\n      return [\n        isBtcMainnetAddress(accountV1.address)\n          ? BtcScope.Mainnet\n          : BtcScope.Testnet,\n      ];\n    }\n    case SolAccountType.DataAccount: {\n      // Solana account supports multiple chains.\n      return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];\n    }\n    default:\n      // We re-use EOA scopes if we don't know what to do for now.\n      return [EthScope.Eoa];\n  }\n}\n\n/**\n * Transform an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * default values.\n *\n * @param accountV1 - A v1 account to transform.\n * @throws An error if the v1 account cannot be transformed.\n * @returns A valid KeyringAccount.\n */\nexport function transformAccountV1(\n  accountV1: KeyringAccountV1,\n): KeyringAccount {\n  const { type } = accountV1;\n\n  // EVM EOA account are compatible with any EVM networks, and we use CAIP-2\n  // namespaces when the scope relates to ALL chains (from that namespace).\n  // So we can automatically inject a valid `scopes` for this, but not for\n  // other kind of accounts.\n  if (type === EthAccountType.Eoa) {\n    return {\n      ...accountV1,\n      scopes: getScopesForAccountV1(accountV1),\n    };\n  }\n\n  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and\n  // each `*AccountStruct` should assert that automatically.\n  return assertKeyringAccount(accountV1);\n}\n\n/**\n * Migrate an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * meaningful default values.\n *\n * @param accountV1 - The account to migrate.\n * @returns A valid KeyringAccount.\n */\nexport function migrateAccountV1(accountV1: KeyringAccountV1): KeyringAccount {\n  if (!isAccountV1(accountV1)) {\n    // Nothing to do in this case.\n    return accountV1 as KeyringAccount;\n  }\n\n  return {\n    ...accountV1,\n    scopes: getScopesForAccountV1(accountV1),\n  };\n}\n"]}
+\ No newline at end of file
++{"version":3,"file":"v1.cjs","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":";;AA0BA,kCAKC;AAQD,sDA0CC;AAWD,gDAmBC;AAUD,4CAUC;AAnID,uDAS+B;AAE/B,2DAA8D;AAC9D,uDAA2C;AAE3C,4CAIoB;AAEpB;;;;;GAKG;AACH,SAAgB,WAAW;AACzB,6EAA6E;AAC7E,OAA0C;IAE1C,OAAO,IAAA,gBAAE,EAAC,OAAO,EAAE,gCAAsB,CAAC,CAAC;AAC7C,CAAC;AAED;;;;;GAKG;AACH,SAAgB,qBAAqB,CACnC,SAA2B;IAE3B,QAAQ,SAAS,CAAC,IAAI,EAAE,CAAC;QACvB,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,mEAAmE;YACnE,6DAA6D;YAC7D,EAAE;YACF,0DAA0D;YAC1D,OAAO,CAAC,sBAAQ,CAAC,GAAG,CAAC,CAAC;QACxB,CAAC;QACD,KAAK,4BAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,sBAAsB;YACtB,wGAAwG;YACxG,0DAA0D;YAC1D,2GAA2G;YAC3G,iBAAiB;YACjB,OAAO,CAAC,sBAAQ,CAAC,OAAO,CAAC,CAAC;QAC5B,CAAC;QACD,KAAK,4BAAc,CAAC,KAAK,CAAC;QAC1B,KAAK,4BAAc,CAAC,IAAI,CAAC;QACzB,KAAK,4BAAc,CAAC,MAAM,CAAC;QAC3B,KAAK,4BAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,0DAA0D;YAC1D,OAAO;gBACL,IAAA,mCAAmB,EAAC,SAAS,CAAC,OAAO,CAAC;oBACpC,CAAC,CAAC,sBAAQ,CAAC,OAAO;oBAClB,CAAC,CAAC,sBAAQ,CAAC,OAAO;aACrB,CAAC;QACJ,CAAC;QACD,KAAK,4BAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,2CAA2C;YAC3C,OAAO,CAAC,sBAAQ,CAAC,OAAO,EAAE,sBAAQ,CAAC,OAAO,EAAE,sBAAQ,CAAC,MAAM,CAAC,CAAC;QAC/D,CAAC;QACD,KAAK,4BAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,yCAAyC;YACzC,OAAO,CAAC,sBAAQ,CAAC,OAAO,EAAE,sBAAQ,CAAC,IAAI,EAAE,sBAAQ,CAAC,MAAM,CAAC,CAAC;QAC5D,CAAC;QACD;YACE,4DAA4D;YAC5D,OAAO,CAAC,sBAAQ,CAAC,GAAG,CAAC,CAAC;IAC1B,CAAC;AACH,CAAC;AAED;;;;;;;;GAQG;AACH,SAAgB,kBAAkB,CAChC,SAA2B;IAE3B,MAAM,EAAE,IAAI,EAAE,GAAG,SAAS,CAAC;IAE3B,0EAA0E;IAC1E,yEAAyE;IACzE,wEAAwE;IACxE,0BAA0B;IAC1B,IAAI,IAAI,KAAK,4BAAc,CAAC,GAAG,EAAE,CAAC;QAChC,OAAO;YACL,GAAG,SAAS;YACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;SACzC,CAAC;IACJ,CAAC;IAED,iFAAiF;IACjF,0DAA0D;IAC1D,OAAO,IAAA,8BAAoB,EAAC,SAAS,CAAC,CAAC;AACzC,CAAC;AAED;;;;;;;GAOG;AACH,SAAgB,gBAAgB,CAAC,SAA2B;IAC1D,IAAI,CAAC,WAAW,CAAC,SAAS,CAAC,EAAE,CAAC;QAC5B,8BAA8B;QAC9B,OAAO,SAA2B,CAAC;IACrC,CAAC;IAED,OAAO;QACL,GAAG,SAAS;QACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;KACzC,CAAC;AACJ,CAAC","sourcesContent":["import {\n  BtcAccountType,\n  EthAccountType,\n  SolAccountType,\n  BtcScope,\n  EthScope,\n  SolScope,\n  TrxAccountType,\n  TrxScope,\n} from '@metamask/keyring-api';\nimport type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';\nimport { isBtcMainnetAddress } from '@metamask/keyring-utils';\nimport { is } from '@metamask/superstruct';\n\nimport {\n  assertKeyringAccount,\n  KeyringAccountV1Struct,\n  type KeyringAccountV1,\n} from '../account';\n\n/**\n * Checks if an account is an `KeyringAccount` v1.\n *\n * @param account - A v1 account to check.\n * @returns True if the account is v1, false otherwise.\n */\nexport function isAccountV1(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  account: KeyringAccountV1 | KeyringAccount,\n): boolean {\n  return is(account, KeyringAccountV1Struct);\n}\n\n/**\n * Gets default scopes for a v1 account.\n *\n * @param accountV1 - A v1 account.\n * @returns The list of scopes for that accounts.\n */\nexport function getScopesForAccountV1(\n  accountV1: KeyringAccountV1,\n): CaipChainId[] {\n  switch (accountV1.type) {\n    case EthAccountType.Eoa: {\n      // EVM EOA account are compatible with any EVM networks, we use the\n      // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.\n      //\n      // See: https://namespaces.chainagnostic.org/eip155/caip10\n      return [EthScope.Eoa];\n    }\n    case EthAccountType.Erc4337: {\n      // EVM Erc4337 account\n      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default\n      // to testnet since we cannot really \"guess\" it from here.\n      // Also, there's no official Snap as of today that uses this account type. So this case should never happen\n      // in production.\n      return [EthScope.Testnet];\n    }\n    case BtcAccountType.P2pkh:\n    case BtcAccountType.P2sh:\n    case BtcAccountType.P2wpkh:\n    case BtcAccountType.P2tr: {\n      // Bitcoin uses different accounts for testnet and mainnet\n      return [\n        isBtcMainnetAddress(accountV1.address)\n          ? BtcScope.Mainnet\n          : BtcScope.Testnet,\n      ];\n    }\n    case SolAccountType.DataAccount: {\n      // Solana account supports multiple chains.\n      return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];\n    }\n    case TrxAccountType.Eoa: {\n      // TRON account supports multiple chains.\n      return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];\n    }\n    default:\n      // We re-use EOA scopes if we don't know what to do for now.\n      return [EthScope.Eoa];\n  }\n}\n\n/**\n * Transform an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * default values.\n *\n * @param accountV1 - A v1 account to transform.\n * @throws An error if the v1 account cannot be transformed.\n * @returns A valid KeyringAccount.\n */\nexport function transformAccountV1(\n  accountV1: KeyringAccountV1,\n): KeyringAccount {\n  const { type } = accountV1;\n\n  // EVM EOA account are compatible with any EVM networks, and we use CAIP-2\n  // namespaces when the scope relates to ALL chains (from that namespace).\n  // So we can automatically inject a valid `scopes` for this, but not for\n  // other kind of accounts.\n  if (type === EthAccountType.Eoa) {\n    return {\n      ...accountV1,\n      scopes: getScopesForAccountV1(accountV1),\n    };\n  }\n\n  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and\n  // each `*AccountStruct` should assert that automatically.\n  return assertKeyringAccount(accountV1);\n}\n\n/**\n * Migrate an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * meaningful default values.\n *\n * @param accountV1 - The account to migrate.\n * @returns A valid KeyringAccount.\n */\nexport function migrateAccountV1(accountV1: KeyringAccountV1): KeyringAccount {\n  if (!isAccountV1(accountV1)) {\n    // Nothing to do in this case.\n    return accountV1 as KeyringAccount;\n  }\n\n  return {\n    ...accountV1,\n    scopes: getScopesForAccountV1(accountV1),\n  };\n}\n"]}
+\ No newline at end of file
+diff --git a/dist/migrations/v1.d.cts.map b/dist/migrations/v1.d.cts.map
+index 1df9a078fe4c3f555af115f4fc766e01d33152a6..55dcdfa6e2beacb16d2df412bd46539930ac8a6a 100644
+--- a/dist/migrations/v1.d.cts.map
++++ b/dist/migrations/v1.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"v1.d.cts","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAQA,OAAO,KAAK,EAAE,WAAW,EAAE,cAAc,EAAE,8BAA8B;AAIzE,OAAO,EAGL,KAAK,gBAAgB,EACtB,uBAAmB;AAEpB;;;;;GAKG;AACH,wBAAgB,WAAW,CAEzB,OAAO,EAAE,gBAAgB,GAAG,cAAc,GACzC,OAAO,CAET;AAED;;;;;GAKG;AACH,wBAAgB,qBAAqB,CACnC,SAAS,EAAE,gBAAgB,GAC1B,WAAW,EAAE,CAoCf;AAED;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAChC,SAAS,EAAE,gBAAgB,GAC1B,cAAc,CAiBhB;AAED;;;;;;;GAOG;AACH,wBAAgB,gBAAgB,CAAC,SAAS,EAAE,gBAAgB,GAAG,cAAc,CAU5E"}
+\ No newline at end of file
++{"version":3,"file":"v1.d.cts","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAUA,OAAO,KAAK,EAAE,WAAW,EAAE,cAAc,EAAE,8BAA8B;AAIzE,OAAO,EAGL,KAAK,gBAAgB,EACtB,uBAAmB;AAEpB;;;;;GAKG;AACH,wBAAgB,WAAW,CAEzB,OAAO,EAAE,gBAAgB,GAAG,cAAc,GACzC,OAAO,CAET;AAED;;;;;GAKG;AACH,wBAAgB,qBAAqB,CACnC,SAAS,EAAE,gBAAgB,GAC1B,WAAW,EAAE,CAwCf;AAED;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAChC,SAAS,EAAE,gBAAgB,GAC1B,cAAc,CAiBhB;AAED;;;;;;;GAOG;AACH,wBAAgB,gBAAgB,CAAC,SAAS,EAAE,gBAAgB,GAAG,cAAc,CAU5E"}
+\ No newline at end of file
+diff --git a/dist/migrations/v1.d.mts.map b/dist/migrations/v1.d.mts.map
+index 08608cb79a18dc62b1f56fa7efc49072128fc5d8..4b1b58894f5c2cba21f192b8223fc7c6c08a502e 100644
+--- a/dist/migrations/v1.d.mts.map
++++ b/dist/migrations/v1.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"v1.d.mts","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAQA,OAAO,KAAK,EAAE,WAAW,EAAE,cAAc,EAAE,8BAA8B;AAIzE,OAAO,EAGL,KAAK,gBAAgB,EACtB,uBAAmB;AAEpB;;;;;GAKG;AACH,wBAAgB,WAAW,CAEzB,OAAO,EAAE,gBAAgB,GAAG,cAAc,GACzC,OAAO,CAET;AAED;;;;;GAKG;AACH,wBAAgB,qBAAqB,CACnC,SAAS,EAAE,gBAAgB,GAC1B,WAAW,EAAE,CAoCf;AAED;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAChC,SAAS,EAAE,gBAAgB,GAC1B,cAAc,CAiBhB;AAED;;;;;;;GAOG;AACH,wBAAgB,gBAAgB,CAAC,SAAS,EAAE,gBAAgB,GAAG,cAAc,CAU5E"}
+\ No newline at end of file
++{"version":3,"file":"v1.d.mts","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAUA,OAAO,KAAK,EAAE,WAAW,EAAE,cAAc,EAAE,8BAA8B;AAIzE,OAAO,EAGL,KAAK,gBAAgB,EACtB,uBAAmB;AAEpB;;;;;GAKG;AACH,wBAAgB,WAAW,CAEzB,OAAO,EAAE,gBAAgB,GAAG,cAAc,GACzC,OAAO,CAET;AAED;;;;;GAKG;AACH,wBAAgB,qBAAqB,CACnC,SAAS,EAAE,gBAAgB,GAC1B,WAAW,EAAE,CAwCf;AAED;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAChC,SAAS,EAAE,gBAAgB,GAC1B,cAAc,CAiBhB;AAED;;;;;;;GAOG;AACH,wBAAgB,gBAAgB,CAAC,SAAS,EAAE,gBAAgB,GAAG,cAAc,CAU5E"}
+\ No newline at end of file
+diff --git a/dist/migrations/v1.mjs b/dist/migrations/v1.mjs
+index 8ccde499747e7408dffb13a60507139afc4ec9c1..19d0b4c0c7efd6f125670f8257252e1c40140144 100644
+--- a/dist/migrations/v1.mjs
++++ b/dist/migrations/v1.mjs
+@@ -1,4 +1,4 @@
+-import { BtcAccountType, EthAccountType, SolAccountType, BtcScope, EthScope, SolScope } from "@metamask/keyring-api";
++import { BtcAccountType, EthAccountType, SolAccountType, BtcScope, EthScope, SolScope, TrxAccountType, TrxScope } from "@metamask/keyring-api";
+ import { isBtcMainnetAddress } from "@metamask/keyring-utils";
+ import { is } from "@metamask/superstruct";
+ import { assertKeyringAccount, KeyringAccountV1Struct } from "../account.mjs";
+@@ -51,6 +51,10 @@ export function getScopesForAccountV1(accountV1) {
+             // Solana account supports multiple chains.
+             return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];
+         }
++        case TrxAccountType.Eoa: {
++            // TRON account supports multiple chains.
++            return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];
++        }
+         default:
+             // We re-use EOA scopes if we don't know what to do for now.
+             return [EthScope.Eoa];
+diff --git a/dist/migrations/v1.mjs.map b/dist/migrations/v1.mjs.map
+index e11ea57433d860de72d49a54d288f07f04b0e443..b922b949b34aafa3711276accfd9a45b066059dd 100644
+--- a/dist/migrations/v1.mjs.map
++++ b/dist/migrations/v1.mjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"v1.mjs","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAAA,OAAO,EACL,cAAc,EACd,cAAc,EACd,cAAc,EACd,QAAQ,EACR,QAAQ,EACR,QAAQ,EACT,8BAA8B;AAE/B,OAAO,EAAE,mBAAmB,EAAE,gCAAgC;AAC9D,OAAO,EAAE,EAAE,EAAE,8BAA8B;AAE3C,OAAO,EACL,oBAAoB,EACpB,sBAAsB,EAEvB,uBAAmB;AAEpB;;;;;GAKG;AACH,MAAM,UAAU,WAAW;AACzB,6EAA6E;AAC7E,OAA0C;IAE1C,OAAO,EAAE,CAAC,OAAO,EAAE,sBAAsB,CAAC,CAAC;AAC7C,CAAC;AAED;;;;;GAKG;AACH,MAAM,UAAU,qBAAqB,CACnC,SAA2B;IAE3B,QAAQ,SAAS,CAAC,IAAI,EAAE,CAAC;QACvB,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,mEAAmE;YACnE,6DAA6D;YAC7D,EAAE;YACF,0DAA0D;YAC1D,OAAO,CAAC,QAAQ,CAAC,GAAG,CAAC,CAAC;QACxB,CAAC;QACD,KAAK,cAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,sBAAsB;YACtB,wGAAwG;YACxG,0DAA0D;YAC1D,2GAA2G;YAC3G,iBAAiB;YACjB,OAAO,CAAC,QAAQ,CAAC,OAAO,CAAC,CAAC;QAC5B,CAAC;QACD,KAAK,cAAc,CAAC,KAAK,CAAC;QAC1B,KAAK,cAAc,CAAC,IAAI,CAAC;QACzB,KAAK,cAAc,CAAC,MAAM,CAAC;QAC3B,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,0DAA0D;YAC1D,OAAO;gBACL,mBAAmB,CAAC,SAAS,CAAC,OAAO,CAAC;oBACpC,CAAC,CAAC,QAAQ,CAAC,OAAO;oBAClB,CAAC,CAAC,QAAQ,CAAC,OAAO;aACrB,CAAC;QACJ,CAAC;QACD,KAAK,cAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,2CAA2C;YAC3C,OAAO,CAAC,QAAQ,CAAC,OAAO,EAAE,QAAQ,CAAC,OAAO,EAAE,QAAQ,CAAC,MAAM,CAAC,CAAC;QAC/D,CAAC;QACD;YACE,4DAA4D;YAC5D,OAAO,CAAC,QAAQ,CAAC,GAAG,CAAC,CAAC;IAC1B,CAAC;AACH,CAAC;AAED;;;;;;;;GAQG;AACH,MAAM,UAAU,kBAAkB,CAChC,SAA2B;IAE3B,MAAM,EAAE,IAAI,EAAE,GAAG,SAAS,CAAC;IAE3B,0EAA0E;IAC1E,yEAAyE;IACzE,wEAAwE;IACxE,0BAA0B;IAC1B,IAAI,IAAI,KAAK,cAAc,CAAC,GAAG,EAAE,CAAC;QAChC,OAAO;YACL,GAAG,SAAS;YACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;SACzC,CAAC;IACJ,CAAC;IAED,iFAAiF;IACjF,0DAA0D;IAC1D,OAAO,oBAAoB,CAAC,SAAS,CAAC,CAAC;AACzC,CAAC;AAED;;;;;;;GAOG;AACH,MAAM,UAAU,gBAAgB,CAAC,SAA2B;IAC1D,IAAI,CAAC,WAAW,CAAC,SAAS,CAAC,EAAE,CAAC;QAC5B,8BAA8B;QAC9B,OAAO,SAA2B,CAAC;IACrC,CAAC;IAED,OAAO;QACL,GAAG,SAAS;QACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;KACzC,CAAC;AACJ,CAAC","sourcesContent":["import {\n  BtcAccountType,\n  EthAccountType,\n  SolAccountType,\n  BtcScope,\n  EthScope,\n  SolScope,\n} from '@metamask/keyring-api';\nimport type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';\nimport { isBtcMainnetAddress } from '@metamask/keyring-utils';\nimport { is } from '@metamask/superstruct';\n\nimport {\n  assertKeyringAccount,\n  KeyringAccountV1Struct,\n  type KeyringAccountV1,\n} from '../account';\n\n/**\n * Checks if an account is an `KeyringAccount` v1.\n *\n * @param account - A v1 account to check.\n * @returns True if the account is v1, false otherwise.\n */\nexport function isAccountV1(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  account: KeyringAccountV1 | KeyringAccount,\n): boolean {\n  return is(account, KeyringAccountV1Struct);\n}\n\n/**\n * Gets default scopes for a v1 account.\n *\n * @param accountV1 - A v1 account.\n * @returns The list of scopes for that accounts.\n */\nexport function getScopesForAccountV1(\n  accountV1: KeyringAccountV1,\n): CaipChainId[] {\n  switch (accountV1.type) {\n    case EthAccountType.Eoa: {\n      // EVM EOA account are compatible with any EVM networks, we use the\n      // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.\n      //\n      // See: https://namespaces.chainagnostic.org/eip155/caip10\n      return [EthScope.Eoa];\n    }\n    case EthAccountType.Erc4337: {\n      // EVM Erc4337 account\n      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default\n      // to testnet since we cannot really \"guess\" it from here.\n      // Also, there's no official Snap as of today that uses this account type. So this case should never happen\n      // in production.\n      return [EthScope.Testnet];\n    }\n    case BtcAccountType.P2pkh:\n    case BtcAccountType.P2sh:\n    case BtcAccountType.P2wpkh:\n    case BtcAccountType.P2tr: {\n      // Bitcoin uses different accounts for testnet and mainnet\n      return [\n        isBtcMainnetAddress(accountV1.address)\n          ? BtcScope.Mainnet\n          : BtcScope.Testnet,\n      ];\n    }\n    case SolAccountType.DataAccount: {\n      // Solana account supports multiple chains.\n      return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];\n    }\n    default:\n      // We re-use EOA scopes if we don't know what to do for now.\n      return [EthScope.Eoa];\n  }\n}\n\n/**\n * Transform an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * default values.\n *\n * @param accountV1 - A v1 account to transform.\n * @throws An error if the v1 account cannot be transformed.\n * @returns A valid KeyringAccount.\n */\nexport function transformAccountV1(\n  accountV1: KeyringAccountV1,\n): KeyringAccount {\n  const { type } = accountV1;\n\n  // EVM EOA account are compatible with any EVM networks, and we use CAIP-2\n  // namespaces when the scope relates to ALL chains (from that namespace).\n  // So we can automatically inject a valid `scopes` for this, but not for\n  // other kind of accounts.\n  if (type === EthAccountType.Eoa) {\n    return {\n      ...accountV1,\n      scopes: getScopesForAccountV1(accountV1),\n    };\n  }\n\n  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and\n  // each `*AccountStruct` should assert that automatically.\n  return assertKeyringAccount(accountV1);\n}\n\n/**\n * Migrate an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * meaningful default values.\n *\n * @param accountV1 - The account to migrate.\n * @returns A valid KeyringAccount.\n */\nexport function migrateAccountV1(accountV1: KeyringAccountV1): KeyringAccount {\n  if (!isAccountV1(accountV1)) {\n    // Nothing to do in this case.\n    return accountV1 as KeyringAccount;\n  }\n\n  return {\n    ...accountV1,\n    scopes: getScopesForAccountV1(accountV1),\n  };\n}\n"]}
+\ No newline at end of file
++{"version":3,"file":"v1.mjs","sourceRoot":"","sources":["../../src/migrations/v1.ts"],"names":[],"mappings":"AAAA,OAAO,EACL,cAAc,EACd,cAAc,EACd,cAAc,EACd,QAAQ,EACR,QAAQ,EACR,QAAQ,EACR,cAAc,EACd,QAAQ,EACT,8BAA8B;AAE/B,OAAO,EAAE,mBAAmB,EAAE,gCAAgC;AAC9D,OAAO,EAAE,EAAE,EAAE,8BAA8B;AAE3C,OAAO,EACL,oBAAoB,EACpB,sBAAsB,EAEvB,uBAAmB;AAEpB;;;;;GAKG;AACH,MAAM,UAAU,WAAW;AACzB,6EAA6E;AAC7E,OAA0C;IAE1C,OAAO,EAAE,CAAC,OAAO,EAAE,sBAAsB,CAAC,CAAC;AAC7C,CAAC;AAED;;;;;GAKG;AACH,MAAM,UAAU,qBAAqB,CACnC,SAA2B;IAE3B,QAAQ,SAAS,CAAC,IAAI,EAAE,CAAC;QACvB,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,mEAAmE;YACnE,6DAA6D;YAC7D,EAAE;YACF,0DAA0D;YAC1D,OAAO,CAAC,QAAQ,CAAC,GAAG,CAAC,CAAC;QACxB,CAAC;QACD,KAAK,cAAc,CAAC,OAAO,CAAC,CAAC,CAAC;YAC5B,sBAAsB;YACtB,wGAAwG;YACxG,0DAA0D;YAC1D,2GAA2G;YAC3G,iBAAiB;YACjB,OAAO,CAAC,QAAQ,CAAC,OAAO,CAAC,CAAC;QAC5B,CAAC;QACD,KAAK,cAAc,CAAC,KAAK,CAAC;QAC1B,KAAK,cAAc,CAAC,IAAI,CAAC;QACzB,KAAK,cAAc,CAAC,MAAM,CAAC;QAC3B,KAAK,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;YACzB,0DAA0D;YAC1D,OAAO;gBACL,mBAAmB,CAAC,SAAS,CAAC,OAAO,CAAC;oBACpC,CAAC,CAAC,QAAQ,CAAC,OAAO;oBAClB,CAAC,CAAC,QAAQ,CAAC,OAAO;aACrB,CAAC;QACJ,CAAC;QACD,KAAK,cAAc,CAAC,WAAW,CAAC,CAAC,CAAC;YAChC,2CAA2C;YAC3C,OAAO,CAAC,QAAQ,CAAC,OAAO,EAAE,QAAQ,CAAC,OAAO,EAAE,QAAQ,CAAC,MAAM,CAAC,CAAC;QAC/D,CAAC;QACD,KAAK,cAAc,CAAC,GAAG,CAAC,CAAC,CAAC;YACxB,yCAAyC;YACzC,OAAO,CAAC,QAAQ,CAAC,OAAO,EAAE,QAAQ,CAAC,IAAI,EAAE,QAAQ,CAAC,MAAM,CAAC,CAAC;QAC5D,CAAC;QACD;YACE,4DAA4D;YAC5D,OAAO,CAAC,QAAQ,CAAC,GAAG,CAAC,CAAC;IAC1B,CAAC;AACH,CAAC;AAED;;;;;;;;GAQG;AACH,MAAM,UAAU,kBAAkB,CAChC,SAA2B;IAE3B,MAAM,EAAE,IAAI,EAAE,GAAG,SAAS,CAAC;IAE3B,0EAA0E;IAC1E,yEAAyE;IACzE,wEAAwE;IACxE,0BAA0B;IAC1B,IAAI,IAAI,KAAK,cAAc,CAAC,GAAG,EAAE,CAAC;QAChC,OAAO;YACL,GAAG,SAAS;YACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;SACzC,CAAC;IACJ,CAAC;IAED,iFAAiF;IACjF,0DAA0D;IAC1D,OAAO,oBAAoB,CAAC,SAAS,CAAC,CAAC;AACzC,CAAC;AAED;;;;;;;GAOG;AACH,MAAM,UAAU,gBAAgB,CAAC,SAA2B;IAC1D,IAAI,CAAC,WAAW,CAAC,SAAS,CAAC,EAAE,CAAC;QAC5B,8BAA8B;QAC9B,OAAO,SAA2B,CAAC;IACrC,CAAC;IAED,OAAO;QACL,GAAG,SAAS;QACZ,MAAM,EAAE,qBAAqB,CAAC,SAAS,CAAC;KACzC,CAAC;AACJ,CAAC","sourcesContent":["import {\n  BtcAccountType,\n  EthAccountType,\n  SolAccountType,\n  BtcScope,\n  EthScope,\n  SolScope,\n  TrxAccountType,\n  TrxScope,\n} from '@metamask/keyring-api';\nimport type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';\nimport { isBtcMainnetAddress } from '@metamask/keyring-utils';\nimport { is } from '@metamask/superstruct';\n\nimport {\n  assertKeyringAccount,\n  KeyringAccountV1Struct,\n  type KeyringAccountV1,\n} from '../account';\n\n/**\n * Checks if an account is an `KeyringAccount` v1.\n *\n * @param account - A v1 account to check.\n * @returns True if the account is v1, false otherwise.\n */\nexport function isAccountV1(\n  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents\n  account: KeyringAccountV1 | KeyringAccount,\n): boolean {\n  return is(account, KeyringAccountV1Struct);\n}\n\n/**\n * Gets default scopes for a v1 account.\n *\n * @param accountV1 - A v1 account.\n * @returns The list of scopes for that accounts.\n */\nexport function getScopesForAccountV1(\n  accountV1: KeyringAccountV1,\n): CaipChainId[] {\n  switch (accountV1.type) {\n    case EthAccountType.Eoa: {\n      // EVM EOA account are compatible with any EVM networks, we use the\n      // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.\n      //\n      // See: https://namespaces.chainagnostic.org/eip155/caip10\n      return [EthScope.Eoa];\n    }\n    case EthAccountType.Erc4337: {\n      // EVM Erc4337 account\n      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default\n      // to testnet since we cannot really \"guess\" it from here.\n      // Also, there's no official Snap as of today that uses this account type. So this case should never happen\n      // in production.\n      return [EthScope.Testnet];\n    }\n    case BtcAccountType.P2pkh:\n    case BtcAccountType.P2sh:\n    case BtcAccountType.P2wpkh:\n    case BtcAccountType.P2tr: {\n      // Bitcoin uses different accounts for testnet and mainnet\n      return [\n        isBtcMainnetAddress(accountV1.address)\n          ? BtcScope.Mainnet\n          : BtcScope.Testnet,\n      ];\n    }\n    case SolAccountType.DataAccount: {\n      // Solana account supports multiple chains.\n      return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];\n    }\n    case TrxAccountType.Eoa: {\n      // TRON account supports multiple chains.\n      return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];\n    }\n    default:\n      // We re-use EOA scopes if we don't know what to do for now.\n      return [EthScope.Eoa];\n  }\n}\n\n/**\n * Transform an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * default values.\n *\n * @param accountV1 - A v1 account to transform.\n * @throws An error if the v1 account cannot be transformed.\n * @returns A valid KeyringAccount.\n */\nexport function transformAccountV1(\n  accountV1: KeyringAccountV1,\n): KeyringAccount {\n  const { type } = accountV1;\n\n  // EVM EOA account are compatible with any EVM networks, and we use CAIP-2\n  // namespaces when the scope relates to ALL chains (from that namespace).\n  // So we can automatically inject a valid `scopes` for this, but not for\n  // other kind of accounts.\n  if (type === EthAccountType.Eoa) {\n    return {\n      ...accountV1,\n      scopes: getScopesForAccountV1(accountV1),\n    };\n  }\n\n  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and\n  // each `*AccountStruct` should assert that automatically.\n  return assertKeyringAccount(accountV1);\n}\n\n/**\n * Migrate an account v1. This account might have optional fields that are now required by\n * the Keyring API. This function will automatically provides the missing fields with some\n * meaningful default values.\n *\n * @param accountV1 - The account to migrate.\n * @returns A valid KeyringAccount.\n */\nexport function migrateAccountV1(accountV1: KeyringAccountV1): KeyringAccount {\n  if (!isAccountV1(accountV1)) {\n    // Nothing to do in this case.\n    return accountV1 as KeyringAccount;\n  }\n\n  return {\n    ...accountV1,\n    scopes: getScopesForAccountV1(accountV1),\n  };\n}\n"]}
+\ No newline at end of file

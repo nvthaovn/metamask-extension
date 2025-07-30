@@ -1,0 +1,334 @@
+diff --git a/dist/types.cjs b/dist/types.cjs
+index 8d1fb991530ae4caaccea15abf2f7f6f0de118a4..0f1abafc3a74596d8b306f0834420d1ee5f5b082 100644
+--- a/dist/types.cjs
++++ b/dist/types.cjs
+@@ -4,7 +4,7 @@
+ // FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`
+ // and `InternalAccountTypes`.
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.InternalAccountStruct = exports.InternalAccountStructs = exports.InternalSolDataAccountStruct = exports.InternalBtcP2trAccountStruct = exports.InternalBtcP2wpkhAccountStruct = exports.InternalBtcP2shAccountStruct = exports.InternalBtcP2pkhAccountStruct = exports.InternalEthErc4337AccountStruct = exports.InternalEthEoaAccountStruct = exports.InternalAccountMetadataStruct = void 0;
++exports.InternalAccountStruct = exports.InternalAccountStructs = exports.InternalTrxEoaAccountStruct = exports.InternalSolDataAccountStruct = exports.InternalBtcP2trAccountStruct = exports.InternalBtcP2wpkhAccountStruct = exports.InternalBtcP2shAccountStruct = exports.InternalBtcP2pkhAccountStruct = exports.InternalEthErc4337AccountStruct = exports.InternalEthEoaAccountStruct = exports.InternalAccountMetadataStruct = void 0;
+ const keyring_api_1 = require("@metamask/keyring-api");
+ const keyring_utils_1 = require("@metamask/keyring-utils");
+ const superstruct_1 = require("@metamask/superstruct");
+@@ -52,6 +52,10 @@ exports.InternalSolDataAccountStruct = (0, keyring_utils_1.object)({
+     ...keyring_api_1.SolDataAccountStruct.schema,
+     ...exports.InternalAccountMetadataStruct.schema,
+ });
++exports.InternalTrxEoaAccountStruct = (0, keyring_utils_1.object)({
++    ...keyring_api_1.TrxEoaAccountStruct.schema,
++    ...exports.InternalAccountMetadataStruct.schema,
++});
+ exports.InternalAccountStructs = {
+     [`${keyring_api_1.EthAccountType.Eoa}`]: exports.InternalEthEoaAccountStruct,
+     [`${keyring_api_1.EthAccountType.Erc4337}`]: exports.InternalEthErc4337AccountStruct,
+@@ -60,6 +64,7 @@ exports.InternalAccountStructs = {
+     [`${keyring_api_1.BtcAccountType.P2wpkh}`]: exports.InternalBtcP2wpkhAccountStruct,
+     [`${keyring_api_1.BtcAccountType.P2tr}`]: exports.InternalBtcP2trAccountStruct,
+     [`${keyring_api_1.SolAccountType.DataAccount}`]: exports.InternalSolDataAccountStruct,
++    [`${keyring_api_1.TrxAccountType.Eoa}`]: exports.InternalTrxEoaAccountStruct,
+ };
+ exports.InternalAccountStruct = (0, keyring_utils_1.object)({
+     ...keyring_api_1.KeyringAccountStruct.schema,
+diff --git a/dist/types.cjs.map b/dist/types.cjs.map
+index fe981d0794ed4660fb4f0a17a977721bde99eff3..164981fc527cb78f97c232f6c872c51a7b032f6e 100644
+--- a/dist/types.cjs.map
++++ b/dist/types.cjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"types.cjs","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":";AAAA,sEAAsE;AACtE,sEAAsE;AACtE,4FAA4F;AAC5F,8BAA8B;;;AAE9B,uDAY+B;AAC/B,2DAAgE;AAEhE,uDAAgE;AAOnD,QAAA,6BAA6B,GAAG,IAAA,sBAAM,EAAC;IAClD,QAAQ,EAAE,IAAA,sBAAM,EAAC;QACf,IAAI,EAAE,IAAA,oBAAM,GAAE;QACd,iBAAiB,EAAE,IAAA,6BAAa,EAAC,IAAA,oBAAM,GAAE,CAAC;QAC1C,IAAI,EAAE,IAAA,6BAAa,EACjB,IAAA,sBAAM,EAAC;YACL,EAAE,EAAE,IAAA,oBAAM,GAAE;YACZ,OAAO,EAAE,IAAA,qBAAO,GAAE;YAClB,IAAI,EAAE,IAAA,oBAAM,GAAE;SACf,CAAC,CACH;QACD,YAAY,EAAE,IAAA,6BAAa,EAAC,IAAA,oBAAM,GAAE,CAAC;QACrC,UAAU,EAAE,IAAA,oBAAM,GAAE;QACpB,OAAO,EAAE,IAAA,sBAAM,EAAC;YACd,IAAI,EAAE,IAAA,oBAAM,GAAE;SACf,CAAC;KACH,CAAC;CACH,CAAC,CAAC;AAEU,QAAA,2BAA2B,GAAG,IAAA,sBAAM,EAAC;IAChD,GAAG,iCAAmB,CAAC,MAAM;IAC7B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,+BAA+B,GAAG,IAAA,sBAAM,EAAC;IACpD,GAAG,qCAAuB,CAAC,MAAM;IACjC,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,6BAA6B,GAAG,IAAA,sBAAM,EAAC;IAClD,GAAG,mCAAqB,CAAC,MAAM;IAC/B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,4BAA4B,GAAG,IAAA,sBAAM,EAAC;IACjD,GAAG,kCAAoB,CAAC,MAAM;IAC9B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,8BAA8B,GAAG,IAAA,sBAAM,EAAC;IACnD,GAAG,oCAAsB,CAAC,MAAM;IAChC,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,4BAA4B,GAAG,IAAA,sBAAM,EAAC;IACjD,GAAG,kCAAoB,CAAC,MAAM;IAC9B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAEU,QAAA,4BAA4B,GAAG,IAAA,sBAAM,EAAC;IACjD,GAAG,kCAAoB,CAAC,MAAM;IAC9B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC;AAsBU,QAAA,sBAAsB,GAS/B;IACF,CAAC,GAAG,4BAAc,CAAC,GAAG,EAAE,CAAC,EAAE,mCAA2B;IACtD,CAAC,GAAG,4BAAc,CAAC,OAAO,EAAE,CAAC,EAAE,uCAA+B;IAC9D,CAAC,GAAG,4BAAc,CAAC,KAAK,EAAE,CAAC,EAAE,qCAA6B;IAC1D,CAAC,GAAG,4BAAc,CAAC,IAAI,EAAE,CAAC,EAAE,oCAA4B;IACxD,CAAC,GAAG,4BAAc,CAAC,MAAM,EAAE,CAAC,EAAE,sCAA8B;IAC5D,CAAC,GAAG,4BAAc,CAAC,IAAI,EAAE,CAAC,EAAE,oCAA4B;IACxD,CAAC,GAAG,4BAAc,CAAC,WAAW,EAAE,CAAC,EAAE,oCAA4B;CAChE,CAAC;AAWW,QAAA,qBAAqB,GAAG,IAAA,sBAAM,EAAC;IAC1C,GAAG,kCAAoB,CAAC,MAAM;IAC9B,GAAG,qCAA6B,CAAC,MAAM;CACxC,CAAC,CAAC","sourcesContent":["/* eslint-disable @typescript-eslint/no-redundant-type-constituents */\n/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */\n// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`\n// and `InternalAccountTypes`.\n\nimport {\n  BtcAccountType,\n  EthAccountType,\n  KeyringAccountStruct,\n  SolAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  SolDataAccountStruct,\n} from '@metamask/keyring-api';\nimport { exactOptional, object } from '@metamask/keyring-utils';\nimport type { Infer, Struct } from '@metamask/superstruct';\nimport { boolean, string, number } from '@metamask/superstruct';\n\nexport type InternalAccountType =\n  | EthAccountType\n  | BtcAccountType\n  | SolAccountType;\n\nexport const InternalAccountMetadataStruct = object({\n  metadata: object({\n    name: string(),\n    nameLastUpdatedAt: exactOptional(number()),\n    snap: exactOptional(\n      object({\n        id: string(),\n        enabled: boolean(),\n        name: string(),\n      }),\n    ),\n    lastSelected: exactOptional(number()),\n    importTime: number(),\n    keyring: object({\n      type: string(),\n    }),\n  }),\n});\n\nexport const InternalEthEoaAccountStruct = object({\n  ...EthEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalEthErc4337AccountStruct = object({\n  ...EthErc4337AccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2pkhAccountStruct = object({\n  ...BtcP2pkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2shAccountStruct = object({\n  ...BtcP2shAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2wpkhAccountStruct = object({\n  ...BtcP2wpkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2trAccountStruct = object({\n  ...BtcP2trAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalSolDataAccountStruct = object({\n  ...SolDataAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;\n\nexport type InternalEthErc4337Account = Infer<\n  typeof InternalEthErc4337AccountStruct\n>;\n\nexport type InternalBtcP2pkhAccount = Infer<\n  typeof InternalBtcP2pkhAccountStruct\n>;\n\nexport type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;\n\nexport type InternalBtcP2wpkhAccount = Infer<\n  typeof InternalBtcP2wpkhAccountStruct\n>;\n\nexport type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;\n\nexport type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;\n\nexport const InternalAccountStructs: Record<\n  string,\n  | Struct<InternalEthEoaAccount>\n  | Struct<InternalEthErc4337Account>\n  | Struct<InternalBtcP2pkhAccount>\n  | Struct<InternalBtcP2shAccount>\n  | Struct<InternalBtcP2wpkhAccount>\n  | Struct<InternalBtcP2trAccount>\n  | Struct<InternalSolDataAccount>\n> = {\n  [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,\n  [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,\n  [`${BtcAccountType.P2pkh}`]: InternalBtcP2pkhAccountStruct,\n  [`${BtcAccountType.P2sh}`]: InternalBtcP2shAccountStruct,\n  [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,\n  [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,\n  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,\n};\n\nexport type InternalAccountTypes =\n  | InternalEthEoaAccount\n  | InternalEthErc4337Account\n  | InternalBtcP2pkhAccount\n  | InternalBtcP2shAccount\n  | InternalBtcP2wpkhAccount\n  | InternalBtcP2trAccount\n  | InternalSolDataAccount;\n\nexport const InternalAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\n/**\n * Internal account representation.\n *\n * This type is used internally by MetaMask to add additional metadata to the\n * account object. It's should not be used by external applications.\n */\nexport type InternalAccount = Infer<typeof InternalAccountStruct>;\n"]}
+\ No newline at end of file
++{"version":3,"file":"types.cjs","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"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","sourcesContent":["/* eslint-disable @typescript-eslint/no-redundant-type-constituents */\n/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */\n// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`\n// and `InternalAccountTypes`.\n\nimport {\n  BtcAccountType,\n  EthAccountType,\n  KeyringAccountStruct,\n  SolAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  SolDataAccountStruct,\n  TrxAccountType,\n  TrxEoaAccountStruct,\n} from '@metamask/keyring-api';\nimport { exactOptional, object } from '@metamask/keyring-utils';\nimport type { Infer, Struct } from '@metamask/superstruct';\nimport { boolean, string, number } from '@metamask/superstruct';\n\nexport type InternalAccountType =\n  | EthAccountType\n  | BtcAccountType\n  | SolAccountType\n  | TrxAccountType;\n\nexport const InternalAccountMetadataStruct = object({\n  metadata: object({\n    name: string(),\n    nameLastUpdatedAt: exactOptional(number()),\n    snap: exactOptional(\n      object({\n        id: string(),\n        enabled: boolean(),\n        name: string(),\n      }),\n    ),\n    lastSelected: exactOptional(number()),\n    importTime: number(),\n    keyring: object({\n      type: string(),\n    }),\n  }),\n});\n\nexport const InternalEthEoaAccountStruct = object({\n  ...EthEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalEthErc4337AccountStruct = object({\n  ...EthErc4337AccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2pkhAccountStruct = object({\n  ...BtcP2pkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2shAccountStruct = object({\n  ...BtcP2shAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2wpkhAccountStruct = object({\n  ...BtcP2wpkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2trAccountStruct = object({\n  ...BtcP2trAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalSolDataAccountStruct = object({\n  ...SolDataAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalTrxEoaAccountStruct = object({\n  ...TrxEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;\n\nexport type InternalEthErc4337Account = Infer<\n  typeof InternalEthErc4337AccountStruct\n>;\n\nexport type InternalBtcP2pkhAccount = Infer<\n  typeof InternalBtcP2pkhAccountStruct\n>;\n\nexport type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;\n\nexport type InternalBtcP2wpkhAccount = Infer<\n  typeof InternalBtcP2wpkhAccountStruct\n>;\n\nexport type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;\n\nexport type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;\n\nexport type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;\n\nexport const InternalAccountStructs: Record<\n  string,\n  | Struct<InternalEthEoaAccount>\n  | Struct<InternalEthErc4337Account>\n  | Struct<InternalBtcP2pkhAccount>\n  | Struct<InternalBtcP2shAccount>\n  | Struct<InternalBtcP2wpkhAccount>\n  | Struct<InternalBtcP2trAccount>\n  | Struct<InternalSolDataAccount>\n  | Struct<InternalTrxEoaAccount>\n> = {\n  [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,\n  [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,\n  [`${BtcAccountType.P2pkh}`]: InternalBtcP2pkhAccountStruct,\n  [`${BtcAccountType.P2sh}`]: InternalBtcP2shAccountStruct,\n  [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,\n  [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,\n  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,\n  [`${TrxAccountType.Eoa}`]: InternalTrxEoaAccountStruct,\n};\n\nexport type InternalAccountTypes =\n  | InternalEthEoaAccount\n  | InternalEthErc4337Account\n  | InternalBtcP2pkhAccount\n  | InternalBtcP2shAccount\n  | InternalBtcP2wpkhAccount\n  | InternalBtcP2trAccount\n  | InternalSolDataAccount\n  | InternalTrxEoaAccount;\n\nexport const InternalAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\n/**\n * Internal account representation.\n *\n * This type is used internally by MetaMask to add additional metadata to the\n * account object. It's should not be used by external applications.\n */\nexport type InternalAccount = Infer<typeof InternalAccountStruct>;\n"]}
+\ No newline at end of file
+diff --git a/dist/types.d.cts b/dist/types.d.cts
+index 0563b2c758d3e2c321ae5008d224e7e1ccdced97..c8258c6c4e193b0048f72daaefabb55e1a5b346a 100644
+--- a/dist/types.d.cts
++++ b/dist/types.d.cts
+@@ -1,6 +1,6 @@
+-import { BtcAccountType, EthAccountType, SolAccountType } from "@metamask/keyring-api";
++import { BtcAccountType, EthAccountType, SolAccountType, TrxAccountType } from "@metamask/keyring-api";
+ import type { Infer, Struct } from "@metamask/superstruct";
+-export type InternalAccountType = EthAccountType | BtcAccountType | SolAccountType;
++export type InternalAccountType = EthAccountType | BtcAccountType | SolAccountType | TrxAccountType;
+ export declare const InternalAccountMetadataStruct: Struct<{
+     metadata: {
+         name: string;
+@@ -515,6 +515,71 @@ export declare const InternalSolDataAccountStruct: Struct<{
+     id: import("@metamask/superstruct").Struct<string, null>;
+     options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
+ }>;
++export declare const InternalTrxEoaAccountStruct: Struct<{
++    type: "tron:eoa";
++    id: string;
++    options: Record<string, import("@metamask/utils").Json>;
++    metadata: {
++        name: string;
++        importTime: number;
++        keyring: {
++            type: string;
++        };
++        nameLastUpdatedAt?: number;
++        snap?: {
++            name: string;
++            id: string;
++            enabled: boolean;
++        };
++        lastSelected?: number;
++    };
++    address: string;
++    scopes: `${string}:${string}`[];
++    methods: import("@metamask/keyring-api").TrxMethod[];
++}, {
++    metadata: Struct<{
++        name: string;
++        importTime: number;
++        keyring: {
++            type: string;
++        };
++        nameLastUpdatedAt?: number;
++        snap?: {
++            name: string;
++            id: string;
++            enabled: boolean;
++        };
++        lastSelected?: number;
++    }, {
++        name: Struct<string, null>;
++        nameLastUpdatedAt: Struct<number | import("@metamask/keyring-utils").ExactOptionalTag, null>;
++        snap: Struct<import("@metamask/keyring-utils").ExactOptionalTag | {
++            name: string;
++            id: string;
++            enabled: boolean;
++        }, {
++            id: Struct<string, null>;
++            enabled: Struct<boolean, null>;
++            name: Struct<string, null>;
++        }>;
++        lastSelected: Struct<number | import("@metamask/keyring-utils").ExactOptionalTag, null>;
++        importTime: Struct<number, null>;
++        keyring: Struct<{
++            type: string;
++        }, {
++            type: Struct<string, null>;
++        }>;
++    }>;
++    address: import("@metamask/superstruct").Struct<string, null>;
++    type: import("@metamask/superstruct").Struct<"tron:eoa", "tron:eoa">;
++    scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
++    methods: import("@metamask/superstruct").Struct<import("@metamask/keyring-api").TrxMethod[], import("@metamask/superstruct").Struct<import("@metamask/keyring-api").TrxMethod, {
++        signMessageV2: import("@metamask/keyring-api").TrxMethod.SignMessageV2;
++        verifyMessageV2: import("@metamask/keyring-api").TrxMethod.VerifyMessageV2;
++    }>>;
++    id: import("@metamask/superstruct").Struct<string, null>;
++    options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
++}>;
+ export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
+ export type InternalEthErc4337Account = Infer<typeof InternalEthErc4337AccountStruct>;
+ export type InternalBtcP2pkhAccount = Infer<typeof InternalBtcP2pkhAccountStruct>;
+@@ -522,10 +587,11 @@ export type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;
+ export type InternalBtcP2wpkhAccount = Infer<typeof InternalBtcP2wpkhAccountStruct>;
+ export type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;
+ export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
+-export declare const InternalAccountStructs: Record<string, Struct<InternalEthEoaAccount> | Struct<InternalEthErc4337Account> | Struct<InternalBtcP2pkhAccount> | Struct<InternalBtcP2shAccount> | Struct<InternalBtcP2wpkhAccount> | Struct<InternalBtcP2trAccount> | Struct<InternalSolDataAccount>>;
+-export type InternalAccountTypes = InternalEthEoaAccount | InternalEthErc4337Account | InternalBtcP2pkhAccount | InternalBtcP2shAccount | InternalBtcP2wpkhAccount | InternalBtcP2trAccount | InternalSolDataAccount;
++export type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;
++export declare const InternalAccountStructs: Record<string, Struct<InternalEthEoaAccount> | Struct<InternalEthErc4337Account> | Struct<InternalBtcP2pkhAccount> | Struct<InternalBtcP2shAccount> | Struct<InternalBtcP2wpkhAccount> | Struct<InternalBtcP2trAccount> | Struct<InternalSolDataAccount> | Struct<InternalTrxEoaAccount>>;
++export type InternalAccountTypes = InternalEthEoaAccount | InternalEthErc4337Account | InternalBtcP2pkhAccount | InternalBtcP2shAccount | InternalBtcP2wpkhAccount | InternalBtcP2trAccount | InternalSolDataAccount | InternalTrxEoaAccount;
+ export declare const InternalAccountStruct: Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     metadata: {
+@@ -580,7 +646,7 @@ export declare const InternalAccountStruct: Struct<{
+         }>;
+     }>;
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -588,6 +654,7 @@ export declare const InternalAccountStruct: Struct<{
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/types.d.cts.map b/dist/types.d.cts.map
+index 58a774071435857ff47426c02d7d8055999cc4d0..939e693ad0eda8c03d584115c8b032181c86fdc5 100644
+--- a/dist/types.d.cts.map
++++ b/dist/types.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"types.d.cts","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"AAKA,OAAO,EACL,cAAc,EACd,cAAc,EAEd,cAAc,EAQf,8BAA8B;AAE/B,OAAO,KAAK,EAAE,KAAK,EAAE,MAAM,EAAE,8BAA8B;AAG3D,MAAM,MAAM,mBAAmB,GAC3B,cAAc,GACd,cAAc,GACd,cAAc,CAAC;AAEnB,eAAO,MAAM,6BAA6B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAiBxC,CAAC;AAEH,eAAO,MAAM,2BAA2B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGtC,CAAC;AAEH,eAAO,MAAM,+BAA+B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAG1C,CAAC;AAEH,eAAO,MAAM,6BAA6B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGxC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,eAAO,MAAM,8BAA8B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGzC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,MAAM,MAAM,qBAAqB,GAAG,KAAK,CAAC,OAAO,2BAA2B,CAAC,CAAC;AAE9E,MAAM,MAAM,yBAAyB,GAAG,KAAK,CAC3C,OAAO,+BAA+B,CACvC,CAAC;AAEF,MAAM,MAAM,uBAAuB,GAAG,KAAK,CACzC,OAAO,6BAA6B,CACrC,CAAC;AAEF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,MAAM,MAAM,wBAAwB,GAAG,KAAK,CAC1C,OAAO,8BAA8B,CACtC,CAAC;AAEF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,eAAO,MAAM,sBAAsB,EAAE,MAAM,CACzC,MAAM,EACJ,MAAM,CAAC,qBAAqB,CAAC,GAC7B,MAAM,CAAC,yBAAyB,CAAC,GACjC,MAAM,CAAC,uBAAuB,CAAC,GAC/B,MAAM,CAAC,sBAAsB,CAAC,GAC9B,MAAM,CAAC,wBAAwB,CAAC,GAChC,MAAM,CAAC,sBAAsB,CAAC,GAC9B,MAAM,CAAC,sBAAsB,CAAC,CASjC,CAAC;AAEF,MAAM,MAAM,oBAAoB,GAC5B,qBAAqB,GACrB,yBAAyB,GACzB,uBAAuB,GACvB,sBAAsB,GACtB,wBAAwB,GACxB,sBAAsB,GACtB,sBAAsB,CAAC;AAE3B,eAAO,MAAM,qBAAqB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGhC,CAAC;AAEH;;;;;GAKG;AACH,MAAM,MAAM,eAAe,GAAG,KAAK,CAAC,OAAO,qBAAqB,CAAC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"types.d.cts","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/types.d.mts b/dist/types.d.mts
+index fab2f935b62c24fc60b635c19b10d41d00a5f686..dd1995267c9d3d0af62745c30f9066c6956acb0a 100644
+--- a/dist/types.d.mts
++++ b/dist/types.d.mts
+@@ -1,6 +1,6 @@
+-import { BtcAccountType, EthAccountType, SolAccountType } from "@metamask/keyring-api";
++import { BtcAccountType, EthAccountType, SolAccountType, TrxAccountType } from "@metamask/keyring-api";
+ import type { Infer, Struct } from "@metamask/superstruct";
+-export type InternalAccountType = EthAccountType | BtcAccountType | SolAccountType;
++export type InternalAccountType = EthAccountType | BtcAccountType | SolAccountType | TrxAccountType;
+ export declare const InternalAccountMetadataStruct: Struct<{
+     metadata: {
+         name: string;
+@@ -515,6 +515,71 @@ export declare const InternalSolDataAccountStruct: Struct<{
+     id: import("@metamask/superstruct").Struct<string, null>;
+     options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
+ }>;
++export declare const InternalTrxEoaAccountStruct: Struct<{
++    type: "tron:eoa";
++    id: string;
++    options: Record<string, import("@metamask/utils").Json>;
++    metadata: {
++        name: string;
++        importTime: number;
++        keyring: {
++            type: string;
++        };
++        nameLastUpdatedAt?: number;
++        snap?: {
++            name: string;
++            id: string;
++            enabled: boolean;
++        };
++        lastSelected?: number;
++    };
++    address: string;
++    scopes: `${string}:${string}`[];
++    methods: import("@metamask/keyring-api").TrxMethod[];
++}, {
++    metadata: Struct<{
++        name: string;
++        importTime: number;
++        keyring: {
++            type: string;
++        };
++        nameLastUpdatedAt?: number;
++        snap?: {
++            name: string;
++            id: string;
++            enabled: boolean;
++        };
++        lastSelected?: number;
++    }, {
++        name: Struct<string, null>;
++        nameLastUpdatedAt: Struct<number | import("@metamask/keyring-utils").ExactOptionalTag, null>;
++        snap: Struct<import("@metamask/keyring-utils").ExactOptionalTag | {
++            name: string;
++            id: string;
++            enabled: boolean;
++        }, {
++            id: Struct<string, null>;
++            enabled: Struct<boolean, null>;
++            name: Struct<string, null>;
++        }>;
++        lastSelected: Struct<number | import("@metamask/keyring-utils").ExactOptionalTag, null>;
++        importTime: Struct<number, null>;
++        keyring: Struct<{
++            type: string;
++        }, {
++            type: Struct<string, null>;
++        }>;
++    }>;
++    address: import("@metamask/superstruct").Struct<string, null>;
++    type: import("@metamask/superstruct").Struct<"tron:eoa", "tron:eoa">;
++    scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
++    methods: import("@metamask/superstruct").Struct<import("@metamask/keyring-api").TrxMethod[], import("@metamask/superstruct").Struct<import("@metamask/keyring-api").TrxMethod, {
++        signMessageV2: import("@metamask/keyring-api").TrxMethod.SignMessageV2;
++        verifyMessageV2: import("@metamask/keyring-api").TrxMethod.VerifyMessageV2;
++    }>>;
++    id: import("@metamask/superstruct").Struct<string, null>;
++    options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
++}>;
+ export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
+ export type InternalEthErc4337Account = Infer<typeof InternalEthErc4337AccountStruct>;
+ export type InternalBtcP2pkhAccount = Infer<typeof InternalBtcP2pkhAccountStruct>;
+@@ -522,10 +587,11 @@ export type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;
+ export type InternalBtcP2wpkhAccount = Infer<typeof InternalBtcP2wpkhAccountStruct>;
+ export type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;
+ export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
+-export declare const InternalAccountStructs: Record<string, Struct<InternalEthEoaAccount> | Struct<InternalEthErc4337Account> | Struct<InternalBtcP2pkhAccount> | Struct<InternalBtcP2shAccount> | Struct<InternalBtcP2wpkhAccount> | Struct<InternalBtcP2trAccount> | Struct<InternalSolDataAccount>>;
+-export type InternalAccountTypes = InternalEthEoaAccount | InternalEthErc4337Account | InternalBtcP2pkhAccount | InternalBtcP2shAccount | InternalBtcP2wpkhAccount | InternalBtcP2trAccount | InternalSolDataAccount;
++export type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;
++export declare const InternalAccountStructs: Record<string, Struct<InternalEthEoaAccount> | Struct<InternalEthErc4337Account> | Struct<InternalBtcP2pkhAccount> | Struct<InternalBtcP2shAccount> | Struct<InternalBtcP2wpkhAccount> | Struct<InternalBtcP2trAccount> | Struct<InternalSolDataAccount> | Struct<InternalTrxEoaAccount>>;
++export type InternalAccountTypes = InternalEthEoaAccount | InternalEthErc4337Account | InternalBtcP2pkhAccount | InternalBtcP2shAccount | InternalBtcP2wpkhAccount | InternalBtcP2trAccount | InternalSolDataAccount | InternalTrxEoaAccount;
+ export declare const InternalAccountStruct: Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     metadata: {
+@@ -580,7 +646,7 @@ export declare const InternalAccountStruct: Struct<{
+         }>;
+     }>;
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -588,6 +654,7 @@ export declare const InternalAccountStruct: Struct<{
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/types.d.mts.map b/dist/types.d.mts.map
+index 25e69b0aea546d855ebd344c60262800ee708aa8..4786e34a16832aa600dd386b76e980e9d8b0312a 100644
+--- a/dist/types.d.mts.map
++++ b/dist/types.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"types.d.mts","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"AAKA,OAAO,EACL,cAAc,EACd,cAAc,EAEd,cAAc,EAQf,8BAA8B;AAE/B,OAAO,KAAK,EAAE,KAAK,EAAE,MAAM,EAAE,8BAA8B;AAG3D,MAAM,MAAM,mBAAmB,GAC3B,cAAc,GACd,cAAc,GACd,cAAc,CAAC;AAEnB,eAAO,MAAM,6BAA6B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAiBxC,CAAC;AAEH,eAAO,MAAM,2BAA2B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGtC,CAAC;AAEH,eAAO,MAAM,+BAA+B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAG1C,CAAC;AAEH,eAAO,MAAM,6BAA6B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGxC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,eAAO,MAAM,8BAA8B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGzC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,eAAO,MAAM,4BAA4B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGvC,CAAC;AAEH,MAAM,MAAM,qBAAqB,GAAG,KAAK,CAAC,OAAO,2BAA2B,CAAC,CAAC;AAE9E,MAAM,MAAM,yBAAyB,GAAG,KAAK,CAC3C,OAAO,+BAA+B,CACvC,CAAC;AAEF,MAAM,MAAM,uBAAuB,GAAG,KAAK,CACzC,OAAO,6BAA6B,CACrC,CAAC;AAEF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,MAAM,MAAM,wBAAwB,GAAG,KAAK,CAC1C,OAAO,8BAA8B,CACtC,CAAC;AAEF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,MAAM,MAAM,sBAAsB,GAAG,KAAK,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEhF,eAAO,MAAM,sBAAsB,EAAE,MAAM,CACzC,MAAM,EACJ,MAAM,CAAC,qBAAqB,CAAC,GAC7B,MAAM,CAAC,yBAAyB,CAAC,GACjC,MAAM,CAAC,uBAAuB,CAAC,GAC/B,MAAM,CAAC,sBAAsB,CAAC,GAC9B,MAAM,CAAC,wBAAwB,CAAC,GAChC,MAAM,CAAC,sBAAsB,CAAC,GAC9B,MAAM,CAAC,sBAAsB,CAAC,CASjC,CAAC;AAEF,MAAM,MAAM,oBAAoB,GAC5B,qBAAqB,GACrB,yBAAyB,GACzB,uBAAuB,GACvB,sBAAsB,GACtB,wBAAwB,GACxB,sBAAsB,GACtB,sBAAsB,CAAC;AAE3B,eAAO,MAAM,qBAAqB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAGhC,CAAC;AAEH;;;;;GAKG;AACH,MAAM,MAAM,eAAe,GAAG,KAAK,CAAC,OAAO,qBAAqB,CAAC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"types.d.mts","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/types.mjs b/dist/types.mjs
+index b271721aaf9e084cf02258cdd13ab15defc9604b..949b6dce9acb6515e9e34bfc8bab00d8ade2b49c 100644
+--- a/dist/types.mjs
++++ b/dist/types.mjs
+@@ -2,7 +2,7 @@
+ /* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
+ // FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`
+ // and `InternalAccountTypes`.
+-import { BtcAccountType, EthAccountType, KeyringAccountStruct, SolAccountType, BtcP2pkhAccountStruct, BtcP2shAccountStruct, BtcP2wpkhAccountStruct, BtcP2trAccountStruct, EthEoaAccountStruct, EthErc4337AccountStruct, SolDataAccountStruct } from "@metamask/keyring-api";
++import { BtcAccountType, EthAccountType, KeyringAccountStruct, SolAccountType, BtcP2pkhAccountStruct, BtcP2shAccountStruct, BtcP2wpkhAccountStruct, BtcP2trAccountStruct, EthEoaAccountStruct, EthErc4337AccountStruct, SolDataAccountStruct, TrxAccountType, TrxEoaAccountStruct } from "@metamask/keyring-api";
+ import { exactOptional, object } from "@metamask/keyring-utils";
+ import { boolean, string, number } from "@metamask/superstruct";
+ export const InternalAccountMetadataStruct = object({
+@@ -49,6 +49,10 @@ export const InternalSolDataAccountStruct = object({
+     ...SolDataAccountStruct.schema,
+     ...InternalAccountMetadataStruct.schema,
+ });
++export const InternalTrxEoaAccountStruct = object({
++    ...TrxEoaAccountStruct.schema,
++    ...InternalAccountMetadataStruct.schema,
++});
+ export const InternalAccountStructs = {
+     [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
+     [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
+@@ -57,6 +61,7 @@ export const InternalAccountStructs = {
+     [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
+     [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,
+     [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
++    [`${TrxAccountType.Eoa}`]: InternalTrxEoaAccountStruct,
+ };
+ export const InternalAccountStruct = object({
+     ...KeyringAccountStruct.schema,
+diff --git a/dist/types.mjs.map b/dist/types.mjs.map
+index d0d580e144daf3ed4b55b6a5639fb0ff89ccd5de..979e5def3abca3c972daf41c755fc72276ab331e 100644
+--- a/dist/types.mjs.map
++++ b/dist/types.mjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"types.mjs","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"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","sourcesContent":["/* eslint-disable @typescript-eslint/no-redundant-type-constituents */\n/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */\n// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`\n// and `InternalAccountTypes`.\n\nimport {\n  BtcAccountType,\n  EthAccountType,\n  KeyringAccountStruct,\n  SolAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  SolDataAccountStruct,\n} from '@metamask/keyring-api';\nimport { exactOptional, object } from '@metamask/keyring-utils';\nimport type { Infer, Struct } from '@metamask/superstruct';\nimport { boolean, string, number } from '@metamask/superstruct';\n\nexport type InternalAccountType =\n  | EthAccountType\n  | BtcAccountType\n  | SolAccountType;\n\nexport const InternalAccountMetadataStruct = object({\n  metadata: object({\n    name: string(),\n    nameLastUpdatedAt: exactOptional(number()),\n    snap: exactOptional(\n      object({\n        id: string(),\n        enabled: boolean(),\n        name: string(),\n      }),\n    ),\n    lastSelected: exactOptional(number()),\n    importTime: number(),\n    keyring: object({\n      type: string(),\n    }),\n  }),\n});\n\nexport const InternalEthEoaAccountStruct = object({\n  ...EthEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalEthErc4337AccountStruct = object({\n  ...EthErc4337AccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2pkhAccountStruct = object({\n  ...BtcP2pkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2shAccountStruct = object({\n  ...BtcP2shAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2wpkhAccountStruct = object({\n  ...BtcP2wpkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2trAccountStruct = object({\n  ...BtcP2trAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalSolDataAccountStruct = object({\n  ...SolDataAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;\n\nexport type InternalEthErc4337Account = Infer<\n  typeof InternalEthErc4337AccountStruct\n>;\n\nexport type InternalBtcP2pkhAccount = Infer<\n  typeof InternalBtcP2pkhAccountStruct\n>;\n\nexport type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;\n\nexport type InternalBtcP2wpkhAccount = Infer<\n  typeof InternalBtcP2wpkhAccountStruct\n>;\n\nexport type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;\n\nexport type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;\n\nexport const InternalAccountStructs: Record<\n  string,\n  | Struct<InternalEthEoaAccount>\n  | Struct<InternalEthErc4337Account>\n  | Struct<InternalBtcP2pkhAccount>\n  | Struct<InternalBtcP2shAccount>\n  | Struct<InternalBtcP2wpkhAccount>\n  | Struct<InternalBtcP2trAccount>\n  | Struct<InternalSolDataAccount>\n> = {\n  [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,\n  [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,\n  [`${BtcAccountType.P2pkh}`]: InternalBtcP2pkhAccountStruct,\n  [`${BtcAccountType.P2sh}`]: InternalBtcP2shAccountStruct,\n  [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,\n  [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,\n  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,\n};\n\nexport type InternalAccountTypes =\n  | InternalEthEoaAccount\n  | InternalEthErc4337Account\n  | InternalBtcP2pkhAccount\n  | InternalBtcP2shAccount\n  | InternalBtcP2wpkhAccount\n  | InternalBtcP2trAccount\n  | InternalSolDataAccount;\n\nexport const InternalAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\n/**\n * Internal account representation.\n *\n * This type is used internally by MetaMask to add additional metadata to the\n * account object. It's should not be used by external applications.\n */\nexport type InternalAccount = Infer<typeof InternalAccountStruct>;\n"]}
+\ No newline at end of file
++{"version":3,"file":"types.mjs","sourceRoot":"","sources":["../src/types.ts"],"names":[],"mappings":"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","sourcesContent":["/* eslint-disable @typescript-eslint/no-redundant-type-constituents */\n/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */\n// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`\n// and `InternalAccountTypes`.\n\nimport {\n  BtcAccountType,\n  EthAccountType,\n  KeyringAccountStruct,\n  SolAccountType,\n  BtcP2pkhAccountStruct,\n  BtcP2shAccountStruct,\n  BtcP2wpkhAccountStruct,\n  BtcP2trAccountStruct,\n  EthEoaAccountStruct,\n  EthErc4337AccountStruct,\n  SolDataAccountStruct,\n  TrxAccountType,\n  TrxEoaAccountStruct,\n} from '@metamask/keyring-api';\nimport { exactOptional, object } from '@metamask/keyring-utils';\nimport type { Infer, Struct } from '@metamask/superstruct';\nimport { boolean, string, number } from '@metamask/superstruct';\n\nexport type InternalAccountType =\n  | EthAccountType\n  | BtcAccountType\n  | SolAccountType\n  | TrxAccountType;\n\nexport const InternalAccountMetadataStruct = object({\n  metadata: object({\n    name: string(),\n    nameLastUpdatedAt: exactOptional(number()),\n    snap: exactOptional(\n      object({\n        id: string(),\n        enabled: boolean(),\n        name: string(),\n      }),\n    ),\n    lastSelected: exactOptional(number()),\n    importTime: number(),\n    keyring: object({\n      type: string(),\n    }),\n  }),\n});\n\nexport const InternalEthEoaAccountStruct = object({\n  ...EthEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalEthErc4337AccountStruct = object({\n  ...EthErc4337AccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2pkhAccountStruct = object({\n  ...BtcP2pkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2shAccountStruct = object({\n  ...BtcP2shAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2wpkhAccountStruct = object({\n  ...BtcP2wpkhAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalBtcP2trAccountStruct = object({\n  ...BtcP2trAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalSolDataAccountStruct = object({\n  ...SolDataAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport const InternalTrxEoaAccountStruct = object({\n  ...TrxEoaAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\nexport type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;\n\nexport type InternalEthErc4337Account = Infer<\n  typeof InternalEthErc4337AccountStruct\n>;\n\nexport type InternalBtcP2pkhAccount = Infer<\n  typeof InternalBtcP2pkhAccountStruct\n>;\n\nexport type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;\n\nexport type InternalBtcP2wpkhAccount = Infer<\n  typeof InternalBtcP2wpkhAccountStruct\n>;\n\nexport type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;\n\nexport type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;\n\nexport type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;\n\nexport const InternalAccountStructs: Record<\n  string,\n  | Struct<InternalEthEoaAccount>\n  | Struct<InternalEthErc4337Account>\n  | Struct<InternalBtcP2pkhAccount>\n  | Struct<InternalBtcP2shAccount>\n  | Struct<InternalBtcP2wpkhAccount>\n  | Struct<InternalBtcP2trAccount>\n  | Struct<InternalSolDataAccount>\n  | Struct<InternalTrxEoaAccount>\n> = {\n  [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,\n  [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,\n  [`${BtcAccountType.P2pkh}`]: InternalBtcP2pkhAccountStruct,\n  [`${BtcAccountType.P2sh}`]: InternalBtcP2shAccountStruct,\n  [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,\n  [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,\n  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,\n  [`${TrxAccountType.Eoa}`]: InternalTrxEoaAccountStruct,\n};\n\nexport type InternalAccountTypes =\n  | InternalEthEoaAccount\n  | InternalEthErc4337Account\n  | InternalBtcP2pkhAccount\n  | InternalBtcP2shAccount\n  | InternalBtcP2wpkhAccount\n  | InternalBtcP2trAccount\n  | InternalSolDataAccount\n  | InternalTrxEoaAccount;\n\nexport const InternalAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n  ...InternalAccountMetadataStruct.schema,\n});\n\n/**\n * Internal account representation.\n *\n * This type is used internally by MetaMask to add additional metadata to the\n * account object. It's should not be used by external applications.\n */\nexport type InternalAccount = Infer<typeof InternalAccountStruct>;\n"]}
+\ No newline at end of file

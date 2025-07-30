@@ -1,0 +1,1191 @@
+diff --git a/dist/api/account.cjs b/dist/api/account.cjs
+index 7ba207403e683269e5fa49db6f112e391da109b1..9c5444d0dd7cc7b5cf31d4f8abf805dda1a5c1c7 100644
+--- a/dist/api/account.cjs
++++ b/dist/api/account.cjs
+@@ -1,6 +1,6 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.KeyringAccountStruct = exports.SolAccountType = exports.BtcAccountType = exports.EthAccountType = void 0;
++exports.KeyringAccountStruct = exports.TrxAccountType = exports.SolAccountType = exports.BtcAccountType = exports.EthAccountType = void 0;
+ const keyring_utils_1 = require("@metamask/keyring-utils");
+ const superstruct_1 = require("@metamask/superstruct");
+ const utils_1 = require("@metamask/utils");
+@@ -30,6 +30,13 @@ var SolAccountType;
+ (function (SolAccountType) {
+     SolAccountType["DataAccount"] = "solana:data-account";
+ })(SolAccountType || (exports.SolAccountType = SolAccountType = {}));
++/**
++ * Supported TRON account types.
++ */
++var TrxAccountType;
++(function (TrxAccountType) {
++    TrxAccountType["Eoa"] = "tron:eoa";
++})(TrxAccountType || (exports.TrxAccountType = TrxAccountType = {}));
+ /**
+  * A struct which represents a Keyring account object. It is abstract enough to
+  * be used with any blockchain. Specific blockchain account types should extend
+@@ -53,6 +60,7 @@ exports.KeyringAccountStruct = (0, keyring_utils_1.object)({
+         `${BtcAccountType.P2wpkh}`,
+         `${BtcAccountType.P2tr}`,
+         `${SolAccountType.DataAccount}`,
++        `${TrxAccountType.Eoa}`,
+     ]),
+     /**
+      * Account main address.
+diff --git a/dist/api/account.cjs.map b/dist/api/account.cjs.map
+index a047286fb7a82999c2596f1d07b9018a7dffb347..81aaf5301ba53669ccbd1a643d92acde8255be40 100644
+--- a/dist/api/account.cjs.map
++++ b/dist/api/account.cjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.cjs","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":";;;AAAA,2DAAkE;AAElE,uDAA+E;AAC/E,2CAA6C;AAE7C,qCAA2C;AAE3C;;GAEG;AACH,IAAY,cAGX;AAHD,WAAY,cAAc;IACxB,oCAAkB,CAAA;IAClB,4CAA0B,CAAA;AAC5B,CAAC,EAHW,cAAc,8BAAd,cAAc,QAGzB;AAED;;GAEG;AACH,IAAY,cAKX;AALD,WAAY,cAAc;IACxB,wCAAsB,CAAA;IACtB,sCAAoB,CAAA;IACpB,0CAAwB,CAAA;IACxB,sCAAoB,CAAA;AACtB,CAAC,EALW,cAAc,8BAAd,cAAc,QAKzB;AAED;;GAEG;AACH,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,qDAAmC,CAAA;AACrC,CAAC,EAFW,cAAc,8BAAd,cAAc,QAEzB;AAcD;;;;;;GAMG;AACU,QAAA,oBAAoB,GAAG,IAAA,sBAAM,EAAC;IACzC;;OAEG;IACH,EAAE,EAAE,+BAAe;IAEnB;;OAEG;IACH,IAAI,EAAE,IAAA,mBAAK,EAAC;QACV,GAAG,cAAc,CAAC,GAAG,EAAE;QACvB,GAAG,cAAc,CAAC,OAAO,EAAE;QAC3B,GAAG,cAAc,CAAC,KAAK,EAAE;QACzB,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,MAAM,EAAE;QAC1B,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,WAAW,EAAE;KAChC,CAAC;IAEF;;OAEG;IACH,OAAO,EAAE,IAAA,oBAAM,GAAE;IAEjB;;OAEG;IACH,MAAM,EAAE,IAAA,sBAAQ,EAAC,IAAA,mBAAK,EAAC,wBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,IAAA,oBAAM,EAAC,IAAA,oBAAM,GAAE,EAAE,kBAAU,CAAC;IAErC;;OAEG;IACH,OAAO,EAAE,IAAA,mBAAK,EAAC,IAAA,oBAAM,GAAE,CAAC;CACzB,CAAC,CAAC","sourcesContent":["import { AccountIdStruct, object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { nonempty, array, enums, record, string } from '@metamask/superstruct';\nimport { JsonStruct } from '@metamask/utils';\n\nimport { CaipChainIdStruct } from './caip';\n\n/**\n * Supported Ethereum account types.\n */\nexport enum EthAccountType {\n  Eoa = 'eip155:eoa',\n  Erc4337 = 'eip155:erc4337',\n}\n\n/**\n * Supported Bitcoin account types.\n */\nexport enum BtcAccountType {\n  P2pkh = 'bip122:p2pkh',\n  P2sh = 'bip122:p2sh',\n  P2wpkh = 'bip122:p2wpkh',\n  P2tr = 'bip122:p2tr',\n}\n\n/**\n * Supported Solana account types.\n */\nexport enum SolAccountType {\n  DataAccount = 'solana:data-account',\n}\n\n/**\n * Supported account types.\n */\nexport type KeyringAccountType =\n  | `${EthAccountType.Eoa}`\n  | `${EthAccountType.Erc4337}`\n  | `${BtcAccountType.P2pkh}`\n  | `${BtcAccountType.P2sh}`\n  | `${BtcAccountType.P2wpkh}`\n  | `${BtcAccountType.P2tr}`\n  | `${SolAccountType.DataAccount}`;\n\n/**\n * A struct which represents a Keyring account object. It is abstract enough to\n * be used with any blockchain. Specific blockchain account types should extend\n * this struct.\n *\n * See {@link KeyringAccount}.\n */\nexport const KeyringAccountStruct = object({\n  /**\n   * Account ID (UUIDv4).\n   */\n  id: AccountIdStruct,\n\n  /**\n   * Account type.\n   */\n  type: enums([\n    `${EthAccountType.Eoa}`,\n    `${EthAccountType.Erc4337}`,\n    `${BtcAccountType.P2pkh}`,\n    `${BtcAccountType.P2sh}`,\n    `${BtcAccountType.P2wpkh}`,\n    `${BtcAccountType.P2tr}`,\n    `${SolAccountType.DataAccount}`,\n  ]),\n\n  /**\n   * Account main address.\n   */\n  address: string(),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account options.\n   */\n  options: record(string(), JsonStruct),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(string()),\n});\n\n/**\n * Keyring Account type represents an account and its properties from the\n * point of view of the keyring.\n */\nexport type KeyringAccount = Infer<typeof KeyringAccountStruct>;\n"]}
+\ No newline at end of file
++{"version":3,"file":"account.cjs","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":";;;AAAA,2DAAkE;AAElE,uDAA+E;AAC/E,2CAA6C;AAE7C,qCAA2C;AAE3C;;GAEG;AACH,IAAY,cAGX;AAHD,WAAY,cAAc;IACxB,oCAAkB,CAAA;IAClB,4CAA0B,CAAA;AAC5B,CAAC,EAHW,cAAc,8BAAd,cAAc,QAGzB;AAED;;GAEG;AACH,IAAY,cAKX;AALD,WAAY,cAAc;IACxB,wCAAsB,CAAA;IACtB,sCAAoB,CAAA;IACpB,0CAAwB,CAAA;IACxB,sCAAoB,CAAA;AACtB,CAAC,EALW,cAAc,8BAAd,cAAc,QAKzB;AAED;;GAEG;AACH,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,qDAAmC,CAAA;AACrC,CAAC,EAFW,cAAc,8BAAd,cAAc,QAEzB;AAED;;GAEG;AACH,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,kCAAgB,CAAA;AAClB,CAAC,EAFW,cAAc,8BAAd,cAAc,QAEzB;AAeD;;;;;;GAMG;AACU,QAAA,oBAAoB,GAAG,IAAA,sBAAM,EAAC;IACzC;;OAEG;IACH,EAAE,EAAE,+BAAe;IAEnB;;OAEG;IACH,IAAI,EAAE,IAAA,mBAAK,EAAC;QACV,GAAG,cAAc,CAAC,GAAG,EAAE;QACvB,GAAG,cAAc,CAAC,OAAO,EAAE;QAC3B,GAAG,cAAc,CAAC,KAAK,EAAE;QACzB,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,MAAM,EAAE;QAC1B,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,WAAW,EAAE;QAC/B,GAAG,cAAc,CAAC,GAAG,EAAE;KACxB,CAAC;IAEF;;OAEG;IACH,OAAO,EAAE,IAAA,oBAAM,GAAE;IAEjB;;OAEG;IACH,MAAM,EAAE,IAAA,sBAAQ,EAAC,IAAA,mBAAK,EAAC,wBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,IAAA,oBAAM,EAAC,IAAA,oBAAM,GAAE,EAAE,kBAAU,CAAC;IAErC;;OAEG;IACH,OAAO,EAAE,IAAA,mBAAK,EAAC,IAAA,oBAAM,GAAE,CAAC;CACzB,CAAC,CAAC","sourcesContent":["import { AccountIdStruct, object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { array, enums, nonempty, record, string } from '@metamask/superstruct';\nimport { JsonStruct } from '@metamask/utils';\n\nimport { CaipChainIdStruct } from './caip';\n\n/**\n * Supported Ethereum account types.\n */\nexport enum EthAccountType {\n  Eoa = 'eip155:eoa',\n  Erc4337 = 'eip155:erc4337',\n}\n\n/**\n * Supported Bitcoin account types.\n */\nexport enum BtcAccountType {\n  P2pkh = 'bip122:p2pkh',\n  P2sh = 'bip122:p2sh',\n  P2wpkh = 'bip122:p2wpkh',\n  P2tr = 'bip122:p2tr',\n}\n\n/**\n * Supported Solana account types.\n */\nexport enum SolAccountType {\n  DataAccount = 'solana:data-account',\n}\n\n/**\n * Supported TRON account types.\n */\nexport enum TrxAccountType {\n  Eoa = 'tron:eoa',\n}\n\n/**\n * Supported account types.\n */\nexport type KeyringAccountType =\n  | `${EthAccountType.Eoa}`\n  | `${EthAccountType.Erc4337}`\n  | `${BtcAccountType.P2pkh}`\n  | `${BtcAccountType.P2sh}`\n  | `${BtcAccountType.P2wpkh}`\n  | `${BtcAccountType.P2tr}`\n  | `${SolAccountType.DataAccount}`\n  | `${TrxAccountType.Eoa}`;\n\n/**\n * A struct which represents a Keyring account object. It is abstract enough to\n * be used with any blockchain. Specific blockchain account types should extend\n * this struct.\n *\n * See {@link KeyringAccount}.\n */\nexport const KeyringAccountStruct = object({\n  /**\n   * Account ID (UUIDv4).\n   */\n  id: AccountIdStruct,\n\n  /**\n   * Account type.\n   */\n  type: enums([\n    `${EthAccountType.Eoa}`,\n    `${EthAccountType.Erc4337}`,\n    `${BtcAccountType.P2pkh}`,\n    `${BtcAccountType.P2sh}`,\n    `${BtcAccountType.P2wpkh}`,\n    `${BtcAccountType.P2tr}`,\n    `${SolAccountType.DataAccount}`,\n    `${TrxAccountType.Eoa}`,\n  ]),\n\n  /**\n   * Account main address.\n   */\n  address: string(),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account options.\n   */\n  options: record(string(), JsonStruct),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(string()),\n});\n\n/**\n * Keyring Account type represents an account and its properties from the\n * point of view of the keyring.\n */\nexport type KeyringAccount = Infer<typeof KeyringAccountStruct>;\n"]}
+\ No newline at end of file
+diff --git a/dist/api/account.d.cts b/dist/api/account.d.cts
+index e7721e64c3021ae47c5f7032963ca4900d35fa55..86b68e54d9cbe41e4c998da458d67988489ca667 100644
+--- a/dist/api/account.d.cts
++++ b/dist/api/account.d.cts
+@@ -21,10 +21,16 @@ export declare enum BtcAccountType {
+ export declare enum SolAccountType {
+     DataAccount = "solana:data-account"
+ }
++/**
++ * Supported TRON account types.
++ */
++export declare enum TrxAccountType {
++    Eoa = "tron:eoa"
++}
+ /**
+  * Supported account types.
+  */
+-export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc4337}` | `${BtcAccountType.P2pkh}` | `${BtcAccountType.P2sh}` | `${BtcAccountType.P2wpkh}` | `${BtcAccountType.P2tr}` | `${SolAccountType.DataAccount}`;
++export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc4337}` | `${BtcAccountType.P2pkh}` | `${BtcAccountType.P2sh}` | `${BtcAccountType.P2wpkh}` | `${BtcAccountType.P2tr}` | `${SolAccountType.DataAccount}` | `${TrxAccountType.Eoa}`;
+ /**
+  * A struct which represents a Keyring account object. It is abstract enough to
+  * be used with any blockchain. Specific blockchain account types should extend
+@@ -33,7 +39,7 @@ export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc
+  * See {@link KeyringAccount}.
+  */
+ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -47,7 +53,7 @@ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struc
+     /**
+      * Account type.
+      */
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -55,6 +61,7 @@ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struc
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     /**
+      * Account main address.
+diff --git a/dist/api/account.d.cts.map b/dist/api/account.d.cts.map
+index 6c9fd343c3ed1dfefd4a596f0f9abc9561ec9952..df26345469ead744d98241b9f8210354a5007d8b 100644
+--- a/dist/api/account.d.cts.map
++++ b/dist/api/account.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.d.cts","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAMnD;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,eAAe;IAClB,OAAO,mBAAmB;CAC3B;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,KAAK,iBAAiB;IACtB,IAAI,gBAAgB;IACpB,MAAM,kBAAkB;IACxB,IAAI,gBAAgB;CACrB;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,WAAW,wBAAwB;CACpC;AAED;;GAEG;AACH,MAAM,MAAM,kBAAkB,GAC1B,GAAG,cAAc,CAAC,GAAG,EAAE,GACvB,GAAG,cAAc,CAAC,OAAO,EAAE,GAC3B,GAAG,cAAc,CAAC,KAAK,EAAE,GACzB,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,MAAM,EAAE,GAC1B,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,WAAW,EAAE,CAAC;AAEpC;;;;;;GAMG;AACH,eAAO,MAAM,oBAAoB;;;;;;;;IAC/B;;OAEG;;IAGH;;OAEG;;;;;;;;;;IAWH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;EAEH,CAAC;AAEH;;;GAGG;AACH,MAAM,MAAM,cAAc,GAAG,KAAK,CAAC,OAAO,oBAAoB,CAAC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"account.d.cts","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAMnD;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,eAAe;IAClB,OAAO,mBAAmB;CAC3B;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,KAAK,iBAAiB;IACtB,IAAI,gBAAgB;IACpB,MAAM,kBAAkB;IACxB,IAAI,gBAAgB;CACrB;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,WAAW,wBAAwB;CACpC;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,aAAa;CACjB;AAED;;GAEG;AACH,MAAM,MAAM,kBAAkB,GAC1B,GAAG,cAAc,CAAC,GAAG,EAAE,GACvB,GAAG,cAAc,CAAC,OAAO,EAAE,GAC3B,GAAG,cAAc,CAAC,KAAK,EAAE,GACzB,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,MAAM,EAAE,GAC1B,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,WAAW,EAAE,GAC/B,GAAG,cAAc,CAAC,GAAG,EAAE,CAAC;AAE5B;;;;;;GAMG;AACH,eAAO,MAAM,oBAAoB;;;;;;;;IAC/B;;OAEG;;IAGH;;OAEG;;;;;;;;;;;IAYH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;EAEH,CAAC;AAEH;;;GAGG;AACH,MAAM,MAAM,cAAc,GAAG,KAAK,CAAC,OAAO,oBAAoB,CAAC,CAAC"}
+\ No newline at end of file
+diff --git a/dist/api/account.d.mts b/dist/api/account.d.mts
+index 040a8083f052eff54e0516fb857c3036ed1deb27..c7a5d75bf7c5e4beaf113c0112d0703e6c0a3bba 100644
+--- a/dist/api/account.d.mts
++++ b/dist/api/account.d.mts
+@@ -21,10 +21,16 @@ export declare enum BtcAccountType {
+ export declare enum SolAccountType {
+     DataAccount = "solana:data-account"
+ }
++/**
++ * Supported TRON account types.
++ */
++export declare enum TrxAccountType {
++    Eoa = "tron:eoa"
++}
+ /**
+  * Supported account types.
+  */
+-export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc4337}` | `${BtcAccountType.P2pkh}` | `${BtcAccountType.P2sh}` | `${BtcAccountType.P2wpkh}` | `${BtcAccountType.P2tr}` | `${SolAccountType.DataAccount}`;
++export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc4337}` | `${BtcAccountType.P2pkh}` | `${BtcAccountType.P2sh}` | `${BtcAccountType.P2wpkh}` | `${BtcAccountType.P2tr}` | `${SolAccountType.DataAccount}` | `${TrxAccountType.Eoa}`;
+ /**
+  * A struct which represents a Keyring account object. It is abstract enough to
+  * be used with any blockchain. Specific blockchain account types should extend
+@@ -33,7 +39,7 @@ export type KeyringAccountType = `${EthAccountType.Eoa}` | `${EthAccountType.Erc
+  * See {@link KeyringAccount}.
+  */
+ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -47,7 +53,7 @@ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struc
+     /**
+      * Account type.
+      */
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -55,6 +61,7 @@ export declare const KeyringAccountStruct: import("@metamask/superstruct").Struc
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     /**
+      * Account main address.
+diff --git a/dist/api/account.d.mts.map b/dist/api/account.d.mts.map
+index 95da22e74300909ae3480e61189fa30faaf91712..f240231bf65ee391ce559cc3d2a5dab077e6a93e 100644
+--- a/dist/api/account.d.mts.map
++++ b/dist/api/account.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.d.mts","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAMnD;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,eAAe;IAClB,OAAO,mBAAmB;CAC3B;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,KAAK,iBAAiB;IACtB,IAAI,gBAAgB;IACpB,MAAM,kBAAkB;IACxB,IAAI,gBAAgB;CACrB;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,WAAW,wBAAwB;CACpC;AAED;;GAEG;AACH,MAAM,MAAM,kBAAkB,GAC1B,GAAG,cAAc,CAAC,GAAG,EAAE,GACvB,GAAG,cAAc,CAAC,OAAO,EAAE,GAC3B,GAAG,cAAc,CAAC,KAAK,EAAE,GACzB,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,MAAM,EAAE,GAC1B,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,WAAW,EAAE,CAAC;AAEpC;;;;;;GAMG;AACH,eAAO,MAAM,oBAAoB;;;;;;;;IAC/B;;OAEG;;IAGH;;OAEG;;;;;;;;;;IAWH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;EAEH,CAAC;AAEH;;;GAGG;AACH,MAAM,MAAM,cAAc,GAAG,KAAK,CAAC,OAAO,oBAAoB,CAAC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"account.d.mts","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAMnD;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,eAAe;IAClB,OAAO,mBAAmB;CAC3B;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,KAAK,iBAAiB;IACtB,IAAI,gBAAgB;IACpB,MAAM,kBAAkB;IACxB,IAAI,gBAAgB;CACrB;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,WAAW,wBAAwB;CACpC;AAED;;GAEG;AACH,oBAAY,cAAc;IACxB,GAAG,aAAa;CACjB;AAED;;GAEG;AACH,MAAM,MAAM,kBAAkB,GAC1B,GAAG,cAAc,CAAC,GAAG,EAAE,GACvB,GAAG,cAAc,CAAC,OAAO,EAAE,GAC3B,GAAG,cAAc,CAAC,KAAK,EAAE,GACzB,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,MAAM,EAAE,GAC1B,GAAG,cAAc,CAAC,IAAI,EAAE,GACxB,GAAG,cAAc,CAAC,WAAW,EAAE,GAC/B,GAAG,cAAc,CAAC,GAAG,EAAE,CAAC;AAE5B;;;;;;GAMG;AACH,eAAO,MAAM,oBAAoB;;;;;;;;IAC/B;;OAEG;;IAGH;;OAEG;;;;;;;;;;;IAYH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;EAEH,CAAC;AAEH;;;GAGG;AACH,MAAM,MAAM,cAAc,GAAG,KAAK,CAAC,OAAO,oBAAoB,CAAC,CAAC"}
+\ No newline at end of file
+diff --git a/dist/api/account.mjs b/dist/api/account.mjs
+index ab40f186b4673944b4c07d3f04e55fdda33a4eae..75e99617767299e01d442f44dd79559c7ca46db7 100644
+--- a/dist/api/account.mjs
++++ b/dist/api/account.mjs
+@@ -1,5 +1,5 @@
+ import { AccountIdStruct, object } from "@metamask/keyring-utils";
+-import { nonempty, array, enums, record, string } from "@metamask/superstruct";
++import { array, enums, nonempty, record, string } from "@metamask/superstruct";
+ import { JsonStruct } from "@metamask/utils";
+ import { CaipChainIdStruct } from "./caip.mjs";
+ /**
+@@ -27,6 +27,13 @@ export var SolAccountType;
+ (function (SolAccountType) {
+     SolAccountType["DataAccount"] = "solana:data-account";
+ })(SolAccountType || (SolAccountType = {}));
++/**
++ * Supported TRON account types.
++ */
++export var TrxAccountType;
++(function (TrxAccountType) {
++    TrxAccountType["Eoa"] = "tron:eoa";
++})(TrxAccountType || (TrxAccountType = {}));
+ /**
+  * A struct which represents a Keyring account object. It is abstract enough to
+  * be used with any blockchain. Specific blockchain account types should extend
+@@ -50,6 +57,7 @@ export const KeyringAccountStruct = object({
+         `${BtcAccountType.P2wpkh}`,
+         `${BtcAccountType.P2tr}`,
+         `${SolAccountType.DataAccount}`,
++        `${TrxAccountType.Eoa}`,
+     ]),
+     /**
+      * Account main address.
+diff --git a/dist/api/account.mjs.map b/dist/api/account.mjs.map
+index 24664b98cb0215ed4b20b2e635bac215230b86bd..75451854ef29a919abce0d504d49bed6fdbf9aca 100644
+--- a/dist/api/account.mjs.map
++++ b/dist/api/account.mjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"account.mjs","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,EAAE,gCAAgC;AAElE,OAAO,EAAE,QAAQ,EAAE,KAAK,EAAE,KAAK,EAAE,MAAM,EAAE,MAAM,EAAE,8BAA8B;AAC/E,OAAO,EAAE,UAAU,EAAE,wBAAwB;AAE7C,OAAO,EAAE,iBAAiB,EAAE,mBAAe;AAE3C;;GAEG;AACH,MAAM,CAAN,IAAY,cAGX;AAHD,WAAY,cAAc;IACxB,oCAAkB,CAAA;IAClB,4CAA0B,CAAA;AAC5B,CAAC,EAHW,cAAc,KAAd,cAAc,QAGzB;AAED;;GAEG;AACH,MAAM,CAAN,IAAY,cAKX;AALD,WAAY,cAAc;IACxB,wCAAsB,CAAA;IACtB,sCAAoB,CAAA;IACpB,0CAAwB,CAAA;IACxB,sCAAoB,CAAA;AACtB,CAAC,EALW,cAAc,KAAd,cAAc,QAKzB;AAED;;GAEG;AACH,MAAM,CAAN,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,qDAAmC,CAAA;AACrC,CAAC,EAFW,cAAc,KAAd,cAAc,QAEzB;AAcD;;;;;;GAMG;AACH,MAAM,CAAC,MAAM,oBAAoB,GAAG,MAAM,CAAC;IACzC;;OAEG;IACH,EAAE,EAAE,eAAe;IAEnB;;OAEG;IACH,IAAI,EAAE,KAAK,CAAC;QACV,GAAG,cAAc,CAAC,GAAG,EAAE;QACvB,GAAG,cAAc,CAAC,OAAO,EAAE;QAC3B,GAAG,cAAc,CAAC,KAAK,EAAE;QACzB,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,MAAM,EAAE;QAC1B,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,WAAW,EAAE;KAChC,CAAC;IAEF;;OAEG;IACH,OAAO,EAAE,MAAM,EAAE;IAEjB;;OAEG;IACH,MAAM,EAAE,QAAQ,CAAC,KAAK,CAAC,iBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,EAAE,UAAU,CAAC;IAErC;;OAEG;IACH,OAAO,EAAE,KAAK,CAAC,MAAM,EAAE,CAAC;CACzB,CAAC,CAAC","sourcesContent":["import { AccountIdStruct, object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { nonempty, array, enums, record, string } from '@metamask/superstruct';\nimport { JsonStruct } from '@metamask/utils';\n\nimport { CaipChainIdStruct } from './caip';\n\n/**\n * Supported Ethereum account types.\n */\nexport enum EthAccountType {\n  Eoa = 'eip155:eoa',\n  Erc4337 = 'eip155:erc4337',\n}\n\n/**\n * Supported Bitcoin account types.\n */\nexport enum BtcAccountType {\n  P2pkh = 'bip122:p2pkh',\n  P2sh = 'bip122:p2sh',\n  P2wpkh = 'bip122:p2wpkh',\n  P2tr = 'bip122:p2tr',\n}\n\n/**\n * Supported Solana account types.\n */\nexport enum SolAccountType {\n  DataAccount = 'solana:data-account',\n}\n\n/**\n * Supported account types.\n */\nexport type KeyringAccountType =\n  | `${EthAccountType.Eoa}`\n  | `${EthAccountType.Erc4337}`\n  | `${BtcAccountType.P2pkh}`\n  | `${BtcAccountType.P2sh}`\n  | `${BtcAccountType.P2wpkh}`\n  | `${BtcAccountType.P2tr}`\n  | `${SolAccountType.DataAccount}`;\n\n/**\n * A struct which represents a Keyring account object. It is abstract enough to\n * be used with any blockchain. Specific blockchain account types should extend\n * this struct.\n *\n * See {@link KeyringAccount}.\n */\nexport const KeyringAccountStruct = object({\n  /**\n   * Account ID (UUIDv4).\n   */\n  id: AccountIdStruct,\n\n  /**\n   * Account type.\n   */\n  type: enums([\n    `${EthAccountType.Eoa}`,\n    `${EthAccountType.Erc4337}`,\n    `${BtcAccountType.P2pkh}`,\n    `${BtcAccountType.P2sh}`,\n    `${BtcAccountType.P2wpkh}`,\n    `${BtcAccountType.P2tr}`,\n    `${SolAccountType.DataAccount}`,\n  ]),\n\n  /**\n   * Account main address.\n   */\n  address: string(),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account options.\n   */\n  options: record(string(), JsonStruct),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(string()),\n});\n\n/**\n * Keyring Account type represents an account and its properties from the\n * point of view of the keyring.\n */\nexport type KeyringAccount = Infer<typeof KeyringAccountStruct>;\n"]}
+\ No newline at end of file
++{"version":3,"file":"account.mjs","sourceRoot":"","sources":["../../src/api/account.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,EAAE,gCAAgC;AAElE,OAAO,EAAE,KAAK,EAAE,KAAK,EAAE,QAAQ,EAAE,MAAM,EAAE,MAAM,EAAE,8BAA8B;AAC/E,OAAO,EAAE,UAAU,EAAE,wBAAwB;AAE7C,OAAO,EAAE,iBAAiB,EAAE,mBAAe;AAE3C;;GAEG;AACH,MAAM,CAAN,IAAY,cAGX;AAHD,WAAY,cAAc;IACxB,oCAAkB,CAAA;IAClB,4CAA0B,CAAA;AAC5B,CAAC,EAHW,cAAc,KAAd,cAAc,QAGzB;AAED;;GAEG;AACH,MAAM,CAAN,IAAY,cAKX;AALD,WAAY,cAAc;IACxB,wCAAsB,CAAA;IACtB,sCAAoB,CAAA;IACpB,0CAAwB,CAAA;IACxB,sCAAoB,CAAA;AACtB,CAAC,EALW,cAAc,KAAd,cAAc,QAKzB;AAED;;GAEG;AACH,MAAM,CAAN,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,qDAAmC,CAAA;AACrC,CAAC,EAFW,cAAc,KAAd,cAAc,QAEzB;AAED;;GAEG;AACH,MAAM,CAAN,IAAY,cAEX;AAFD,WAAY,cAAc;IACxB,kCAAgB,CAAA;AAClB,CAAC,EAFW,cAAc,KAAd,cAAc,QAEzB;AAeD;;;;;;GAMG;AACH,MAAM,CAAC,MAAM,oBAAoB,GAAG,MAAM,CAAC;IACzC;;OAEG;IACH,EAAE,EAAE,eAAe;IAEnB;;OAEG;IACH,IAAI,EAAE,KAAK,CAAC;QACV,GAAG,cAAc,CAAC,GAAG,EAAE;QACvB,GAAG,cAAc,CAAC,OAAO,EAAE;QAC3B,GAAG,cAAc,CAAC,KAAK,EAAE;QACzB,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,MAAM,EAAE;QAC1B,GAAG,cAAc,CAAC,IAAI,EAAE;QACxB,GAAG,cAAc,CAAC,WAAW,EAAE;QAC/B,GAAG,cAAc,CAAC,GAAG,EAAE;KACxB,CAAC;IAEF;;OAEG;IACH,OAAO,EAAE,MAAM,EAAE;IAEjB;;OAEG;IACH,MAAM,EAAE,QAAQ,CAAC,KAAK,CAAC,iBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,EAAE,UAAU,CAAC;IAErC;;OAEG;IACH,OAAO,EAAE,KAAK,CAAC,MAAM,EAAE,CAAC;CACzB,CAAC,CAAC","sourcesContent":["import { AccountIdStruct, object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { array, enums, nonempty, record, string } from '@metamask/superstruct';\nimport { JsonStruct } from '@metamask/utils';\n\nimport { CaipChainIdStruct } from './caip';\n\n/**\n * Supported Ethereum account types.\n */\nexport enum EthAccountType {\n  Eoa = 'eip155:eoa',\n  Erc4337 = 'eip155:erc4337',\n}\n\n/**\n * Supported Bitcoin account types.\n */\nexport enum BtcAccountType {\n  P2pkh = 'bip122:p2pkh',\n  P2sh = 'bip122:p2sh',\n  P2wpkh = 'bip122:p2wpkh',\n  P2tr = 'bip122:p2tr',\n}\n\n/**\n * Supported Solana account types.\n */\nexport enum SolAccountType {\n  DataAccount = 'solana:data-account',\n}\n\n/**\n * Supported TRON account types.\n */\nexport enum TrxAccountType {\n  Eoa = 'tron:eoa',\n}\n\n/**\n * Supported account types.\n */\nexport type KeyringAccountType =\n  | `${EthAccountType.Eoa}`\n  | `${EthAccountType.Erc4337}`\n  | `${BtcAccountType.P2pkh}`\n  | `${BtcAccountType.P2sh}`\n  | `${BtcAccountType.P2wpkh}`\n  | `${BtcAccountType.P2tr}`\n  | `${SolAccountType.DataAccount}`\n  | `${TrxAccountType.Eoa}`;\n\n/**\n * A struct which represents a Keyring account object. It is abstract enough to\n * be used with any blockchain. Specific blockchain account types should extend\n * this struct.\n *\n * See {@link KeyringAccount}.\n */\nexport const KeyringAccountStruct = object({\n  /**\n   * Account ID (UUIDv4).\n   */\n  id: AccountIdStruct,\n\n  /**\n   * Account type.\n   */\n  type: enums([\n    `${EthAccountType.Eoa}`,\n    `${EthAccountType.Erc4337}`,\n    `${BtcAccountType.P2pkh}`,\n    `${BtcAccountType.P2sh}`,\n    `${BtcAccountType.P2wpkh}`,\n    `${BtcAccountType.P2tr}`,\n    `${SolAccountType.DataAccount}`,\n    `${TrxAccountType.Eoa}`,\n  ]),\n\n  /**\n   * Account main address.\n   */\n  address: string(),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account options.\n   */\n  options: record(string(), JsonStruct),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(string()),\n});\n\n/**\n * Keyring Account type represents an account and its properties from the\n * point of view of the keyring.\n */\nexport type KeyringAccount = Infer<typeof KeyringAccountStruct>;\n"]}
+\ No newline at end of file
+diff --git a/dist/events.d.cts b/dist/events.d.cts
+index 3f52073830cb0b6038a61e2278b528a439f46adf..680b067ad2257f3d5b9da200e6f396d99760da1f 100644
+--- a/dist/events.d.cts
++++ b/dist/events.d.cts
+@@ -16,7 +16,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+     method: "notify:accountCreated";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -34,7 +34,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+     method: import("@metamask/superstruct").Struct<"notify:accountCreated", "notify:accountCreated">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -57,7 +57,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+          * New account object.
+          */
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -65,7 +65,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -73,6 +73,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -110,7 +111,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+     method: "notify:accountUpdated";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -122,7 +123,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+     method: import("@metamask/superstruct").Struct<"notify:accountUpdated", "notify:accountUpdated">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -134,7 +135,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+          * Updated account object.
+          */
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -142,7 +143,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -150,6 +151,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/events.d.cts.map b/dist/events.d.cts.map
+index a483b52efb30505d84794d8a359af45ff1a7240a..0eb403e3e0239a584237eb739c5217dc6fa18526 100644
+--- a/dist/events.d.cts.map
++++ b/dist/events.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"events.d.cts","sourceRoot":"","sources":["../src/events.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"events.d.cts","sourceRoot":"","sources":["../src/events.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/events.d.mts b/dist/events.d.mts
+index 6bb3ba8e227f2af11de0aa2b443476898da19ec2..bb869702405f41fb07e76dea4ed22d0b6c19aa59 100644
+--- a/dist/events.d.mts
++++ b/dist/events.d.mts
+@@ -16,7 +16,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+     method: "notify:accountCreated";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -34,7 +34,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+     method: import("@metamask/superstruct").Struct<"notify:accountCreated", "notify:accountCreated">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -57,7 +57,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+          * New account object.
+          */
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -65,7 +65,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -73,6 +73,7 @@ export declare const AccountCreatedEventStruct: import("@metamask/superstruct").
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -110,7 +111,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+     method: "notify:accountUpdated";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -122,7 +123,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+     method: import("@metamask/superstruct").Struct<"notify:accountUpdated", "notify:accountUpdated">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -134,7 +135,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+          * Updated account object.
+          */
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -142,7 +143,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -150,6 +151,7 @@ export declare const AccountUpdatedEventStruct: import("@metamask/superstruct").
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/events.d.mts.map b/dist/events.d.mts.map
+index 7508b412a46707d82507174f5f7986f5fea8a7a1..3337fc05820217f367746aa730d6174d42774b06 100644
+--- a/dist/events.d.mts.map
++++ b/dist/events.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"events.d.mts","sourceRoot":"","sources":["../src/events.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"events.d.mts","sourceRoot":"","sources":["../src/events.ts"],"names":[],"mappings":"AASA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAenD;;GAEG;AACH,oBAAY,YAAY;IAEtB,cAAc,0BAA0B;IACxC,cAAc,0BAA0B;IACxC,cAAc,0BAA0B;IAGxC,eAAe,2BAA2B;IAC1C,eAAe,2BAA2B;IAG1C,sBAAsB,kCAAkC;IACxD,uBAAuB,mCAAmC;IAC1D,0BAA0B,sCAAsC;CACjE;AAED,eAAO,MAAM,yBAAyB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;QAGlC;;WAEG;;;;;;;;;;;;;;;;;;;;;;;;;QAGH;;;;;;WAMG;;QAGH;;;;WAIG;;QAGH;;;;;;;WAOG;;;EAQL,CAAC;AACH,MAAM,MAAM,mBAAmB,GAAG,KAAK,CAAC,OAAO,yBAAyB,CAAC,CAAC;AAC1E,MAAM,MAAM,0BAA0B,GAAG,mBAAmB,CAAC,QAAQ,CAAC,CAAC;AAEvE,eAAO,MAAM,yBAAyB;;;;;;;;;;;;;;;;;;;;;;;;QAGlC;;WAEG;;;;;;;;;;;;;;;;;;;;;;;;;;EAGL,CAAC;AACH,MAAM,MAAM,mBAAmB,GAAG,KAAK,CAAC,OAAO,yBAAyB,CAAC,CAAC;AAC1E,MAAM,MAAM,0BAA0B,GAAG,mBAAmB,CAAC,QAAQ,CAAC,CAAC;AAEvE,eAAO,MAAM,yBAAyB;;;;;;;;;;QAGlC;;WAEG;;;EAGL,CAAC;AACH,MAAM,MAAM,mBAAmB,GAAG,KAAK,CAAC,OAAO,yBAAyB,CAAC,CAAC;AAC1E,MAAM,MAAM,0BAA0B,GAAG,mBAAmB,CAAC,QAAQ,CAAC,CAAC;AAEvE,eAAO,MAAM,0BAA0B;;;;;;;;;;;;QAGnC;;WAEG;;QAGH;;WAEG;;;EAGL,CAAC;AACH,MAAM,MAAM,oBAAoB,GAAG,KAAK,CAAC,OAAO,0BAA0B,CAAC,CAAC;AAC5E,MAAM,MAAM,2BAA2B,GAAG,oBAAoB,CAAC,QAAQ,CAAC,CAAC;AAEzE,eAAO,MAAM,0BAA0B;;;;;;;;;;QAGnC;;WAEG;;;EAGL,CAAC;AACH,MAAM,MAAM,oBAAoB,GAAG,KAAK,CAAC,OAAO,0BAA0B,CAAC,CAAC;AAC5E,MAAM,MAAM,2BAA2B,GAAG,oBAAoB,CAAC,QAAQ,CAAC,CAAC;AAKzE;;;;;;GAMG;AACH,eAAO,MAAM,iCAAiC;;;;;;;;;;;;;;;;QAG1C;;WAEG;;;;;;EAuBL,CAAC;AACH,MAAM,MAAM,2BAA2B,GAAG,KAAK,CAC7C,OAAO,iCAAiC,CACzC,CAAC;AACF,MAAM,MAAM,kCAAkC,GAC5C,2BAA2B,CAAC,QAAQ,CAAC,CAAC;AAExC;;;;;;;GAOG;AACH,eAAO,MAAM,qCAAqC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;QAG9C;;WAEG;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAaL,CAAC;AACH,MAAM,MAAM,+BAA+B,GAAG,KAAK,CACjD,OAAO,qCAAqC,CAC7C,CAAC;AACF,MAAM,MAAM,sCAAsC,GAChD,+BAA+B,CAAC,QAAQ,CAAC,CAAC;AAE5C;;;;;;GAMG;AACH,eAAO,MAAM,kCAAkC;;;;;;;;;;;;;;;;QAG3C;;WAEG;;;;;;EAuBL,CAAC;AACH,MAAM,MAAM,4BAA4B,GAAG,KAAK,CAC9C,OAAO,kCAAkC,CAC1C,CAAC;AACF,MAAM,MAAM,mCAAmC,GAC7C,4BAA4B,CAAC,QAAQ,CAAC,CAAC;AAEzC;;GAEG;AAEH,KAAK,aAAa,GACd,mBAAmB,GACnB,mBAAmB,GACnB,mBAAmB,GACnB,4BAA4B,GAC5B,2BAA2B,GAC3B,+BAA+B,GAC/B,oBAAoB,GACpB,oBAAoB,CAAC;AAEzB;;GAEG;AACH,MAAM,MAAM,mBAAmB,CAAC,KAAK,SAAS,YAAY,IAAI,OAAO,CACnE,aAAa,EAGb;IAAE,MAAM,EAAE,GAAG,KAAK,EAAE,CAAA;CAAE,CACvB,CAAC,QAAQ,CAAC,CAAC"}
+\ No newline at end of file
+diff --git a/dist/index.cjs b/dist/index.cjs
+index 7850366871ef3185d8ecc822fd9c2e5886f766b7..a069cfea3a46f95909040d7a688fc48775eddd41 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -18,6 +18,7 @@ __exportStar(require("./api/index.cjs"), exports);
+ __exportStar(require("./btc/index.cjs"), exports);
+ __exportStar(require("./sol/index.cjs"), exports);
+ __exportStar(require("./eth/index.cjs"), exports);
++__exportStar(require("./trx/index.cjs"), exports);
+ __exportStar(require("./rpc.cjs"), exports);
+ __exportStar(require("./events.cjs"), exports);
+ //# sourceMappingURL=index.cjs.map
+\ No newline at end of file
+diff --git a/dist/index.cjs.map b/dist/index.cjs.map
+index 18f3e9d456ef0a8822fcb3c6ca0d47a5e9a0e5ed..061d6f1d8c4328dbba93c6ecff76908c79792f0b 100644
+--- a/dist/index.cjs.map
++++ b/dist/index.cjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.cjs","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA,kDAAsB;AACtB,kDAAsB;AACtB,kDAAsB;AACtB,kDAAsB;AAEtB,4CAAsB;AACtB,+CAAyB","sourcesContent":["export * from './api';\nexport * from './btc';\nexport * from './sol';\nexport * from './eth';\nexport type * from './contexts';\nexport * from './rpc';\nexport * from './events';\n"]}
+\ No newline at end of file
++{"version":3,"file":"index.cjs","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA,kDAAsB;AACtB,kDAAsB;AACtB,kDAAsB;AACtB,kDAAsB;AACtB,kDAAsB;AAEtB,4CAAsB;AACtB,+CAAyB","sourcesContent":["export * from './api';\nexport * from './btc';\nexport * from './sol';\nexport * from './eth';\nexport * from './trx';\nexport type * from './contexts';\nexport * from './rpc';\nexport * from './events';\n"]}
+\ No newline at end of file
+diff --git a/dist/index.d.cts b/dist/index.d.cts
+index 4de391b06f1c8913df0ad72b1c9a9a8d9d9b4b84..a71c636f9e0ed47c317016ac31850085609c2dde 100644
+--- a/dist/index.d.cts
++++ b/dist/index.d.cts
+@@ -2,6 +2,7 @@ export * from "./api/index.cjs";
+ export * from "./btc/index.cjs";
+ export * from "./sol/index.cjs";
+ export * from "./eth/index.cjs";
++export * from "./trx/index.cjs";
+ export type * from "./contexts.cjs";
+ export * from "./rpc.cjs";
+ export * from "./events.cjs";
+diff --git a/dist/index.d.cts.map b/dist/index.d.cts.map
+index 3bdda9ec0b11b4c752ae5f996262b878db32ff16..a8537999f8a40da5996b2945cdb4eed56342c2a3 100644
+--- a/dist/index.d.cts.map
++++ b/dist/index.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.cts","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,oCAAgC;AAChC,0BAAsB;AACtB,6BAAyB"}
+\ No newline at end of file
++{"version":3,"file":"index.d.cts","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,oCAAgC;AAChC,0BAAsB;AACtB,6BAAyB"}
+\ No newline at end of file
+diff --git a/dist/index.d.mts b/dist/index.d.mts
+index 57c8c56a88ab084cf30637ac9c1c33bf55fdfc24..0799e00b31d9d6b26caac14103af0e64164634c2 100644
+--- a/dist/index.d.mts
++++ b/dist/index.d.mts
+@@ -2,6 +2,7 @@ export * from "./api/index.mjs";
+ export * from "./btc/index.mjs";
+ export * from "./sol/index.mjs";
+ export * from "./eth/index.mjs";
++export * from "./trx/index.mjs";
+ export type * from "./contexts.mjs";
+ export * from "./rpc.mjs";
+ export * from "./events.mjs";
+diff --git a/dist/index.d.mts.map b/dist/index.d.mts.map
+index 35fd6db6d40fe8dae4e551690f760298fc5f90c9..c31d77987d5d9c696deb9a945f588a4af7cc58ae 100644
+--- a/dist/index.d.mts.map
++++ b/dist/index.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.d.mts","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,oCAAgC;AAChC,0BAAsB;AACtB,6BAAyB"}
+\ No newline at end of file
++{"version":3,"file":"index.d.mts","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,oCAAgC;AAChC,0BAAsB;AACtB,6BAAyB"}
+\ No newline at end of file
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 499af181685877e898cb58abb2260a64cb55908d..e22f1649d3b0b842a3e0c1a442c4f1c470db87ca 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -2,6 +2,7 @@ export * from "./api/index.mjs";
+ export * from "./btc/index.mjs";
+ export * from "./sol/index.mjs";
+ export * from "./eth/index.mjs";
++export * from "./trx/index.mjs";
+ export * from "./rpc.mjs";
+ export * from "./events.mjs";
+ //# sourceMappingURL=index.mjs.map
+\ No newline at end of file
+diff --git a/dist/index.mjs.map b/dist/index.mjs.map
+index b0ee246d23bac2a7a02b9b777af8800fd5070b6f..30c1c0306fffb0f412c728bc19b4ed404215d98f 100644
+--- a/dist/index.mjs.map
++++ b/dist/index.mjs.map
+@@ -1 +1 @@
+-{"version":3,"file":"index.mjs","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AAEtB,0BAAsB;AACtB,6BAAyB","sourcesContent":["export * from './api';\nexport * from './btc';\nexport * from './sol';\nexport * from './eth';\nexport type * from './contexts';\nexport * from './rpc';\nexport * from './events';\n"]}
+\ No newline at end of file
++{"version":3,"file":"index.mjs","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AAAA,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AACtB,gCAAsB;AAEtB,0BAAsB;AACtB,6BAAyB","sourcesContent":["export * from './api';\nexport * from './btc';\nexport * from './sol';\nexport * from './eth';\nexport * from './trx';\nexport type * from './contexts';\nexport * from './rpc';\nexport * from './events';\n"]}
+\ No newline at end of file
+diff --git a/dist/rpc.d.cts b/dist/rpc.d.cts
+index 75c4d8d755e378359b8e939616f91de2fefb9e8c..a5e42612483cb3e7aa8d4d9c51b7825c5f6d565e 100644
+--- a/dist/rpc.d.cts
++++ b/dist/rpc.d.cts
+@@ -39,14 +39,14 @@ export declare const ListAccountsRequestStruct: import("@metamask/superstruct").
+ }>;
+ export type ListAccountsRequest = Infer<typeof ListAccountsRequestStruct>;
+ export declare const ListAccountsResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+     scopes: `${string}:${string}`[];
+     methods: string[];
+ }[], import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -54,7 +54,7 @@ export declare const ListAccountsResponseStruct: import("@metamask/superstruct")
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -62,6 +62,7 @@ export declare const ListAccountsResponseStruct: import("@metamask/superstruct")
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -88,7 +89,7 @@ export declare const GetAccountRequestStruct: import("@metamask/superstruct").St
+ }>;
+ export type GetAccountRequest = Infer<typeof GetAccountRequestStruct>;
+ export declare const GetAccountResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -96,7 +97,7 @@ export declare const GetAccountResponseStruct: import("@metamask/superstruct").S
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -104,6 +105,7 @@ export declare const GetAccountResponseStruct: import("@metamask/superstruct").S
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -130,7 +132,7 @@ export declare const CreateAccountRequestStruct: import("@metamask/superstruct")
+ }>;
+ export type CreateAccountRequest = Infer<typeof CreateAccountRequestStruct>;
+ export declare const CreateAccountResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -138,7 +140,7 @@ export declare const CreateAccountResponseStruct: import("@metamask/superstruct"
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -146,6 +148,7 @@ export declare const CreateAccountResponseStruct: import("@metamask/superstruct"
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -634,7 +637,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+     jsonrpc: "2.0";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -646,7 +649,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+     method: import("@metamask/superstruct").Struct<"keyring_updateAccount", "keyring_updateAccount">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -655,7 +658,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+         };
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -663,7 +666,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -671,6 +674,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/rpc.d.cts.map b/dist/rpc.d.cts.map
+index 5e8674d65b0e7475c01eff48bf370310391564ac..2b9bb9232820738ef9e534aa4e9762de31ca530a 100644
+--- a/dist/rpc.d.cts.map
++++ b/dist/rpc.d.cts.map
+@@ -1 +1 @@
+-{"version":3,"file":"rpc.d.cts","sourceRoot":"","sources":["../src/rpc.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"rpc.d.cts","sourceRoot":"","sources":["../src/rpc.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/rpc.d.mts b/dist/rpc.d.mts
+index 424f4f1f941dacf5b26d5876f8f948ed8eb65ec3..024a8b09334d5c965f1a3439764c90243334bb64 100644
+--- a/dist/rpc.d.mts
++++ b/dist/rpc.d.mts
+@@ -39,14 +39,14 @@ export declare const ListAccountsRequestStruct: import("@metamask/superstruct").
+ }>;
+ export type ListAccountsRequest = Infer<typeof ListAccountsRequestStruct>;
+ export declare const ListAccountsResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+     scopes: `${string}:${string}`[];
+     methods: string[];
+ }[], import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -54,7 +54,7 @@ export declare const ListAccountsResponseStruct: import("@metamask/superstruct")
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -62,6 +62,7 @@ export declare const ListAccountsResponseStruct: import("@metamask/superstruct")
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -88,7 +89,7 @@ export declare const GetAccountRequestStruct: import("@metamask/superstruct").St
+ }>;
+ export type GetAccountRequest = Infer<typeof GetAccountRequestStruct>;
+ export declare const GetAccountResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -96,7 +97,7 @@ export declare const GetAccountResponseStruct: import("@metamask/superstruct").S
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -104,6 +105,7 @@ export declare const GetAccountResponseStruct: import("@metamask/superstruct").S
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -130,7 +132,7 @@ export declare const CreateAccountRequestStruct: import("@metamask/superstruct")
+ }>;
+ export type CreateAccountRequest = Infer<typeof CreateAccountRequestStruct>;
+ export declare const CreateAccountResponseStruct: import("@metamask/superstruct").Struct<{
+-    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++    type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+     id: string;
+     options: Record<string, import("@metamask/utils").Json>;
+     address: string;
+@@ -138,7 +140,7 @@ export declare const CreateAccountResponseStruct: import("@metamask/superstruct"
+     methods: string[];
+ }, {
+     id: import("@metamask/superstruct").Struct<string, null>;
+-    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++    type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+         "eip155:eoa": "eip155:eoa";
+         "eip155:erc4337": "eip155:erc4337";
+         "bip122:p2pkh": "bip122:p2pkh";
+@@ -146,6 +148,7 @@ export declare const CreateAccountResponseStruct: import("@metamask/superstruct"
+         "bip122:p2wpkh": "bip122:p2wpkh";
+         "bip122:p2tr": "bip122:p2tr";
+         "solana:data-account": "solana:data-account";
++        "tron:eoa": "tron:eoa";
+     }>;
+     address: import("@metamask/superstruct").Struct<string, null>;
+     scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+@@ -634,7 +637,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+     jsonrpc: "2.0";
+     params: {
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -646,7 +649,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+     method: import("@metamask/superstruct").Struct<"keyring_updateAccount", "keyring_updateAccount">;
+     params: import("@metamask/superstruct").Struct<{
+         account: {
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -655,7 +658,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+         };
+     }, {
+         account: import("@metamask/superstruct").Struct<{
+-            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account";
++            type: "eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa";
+             id: string;
+             options: Record<string, import("@metamask/utils").Json>;
+             address: string;
+@@ -663,7 +666,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+             methods: string[];
+         }, {
+             id: import("@metamask/superstruct").Struct<string, null>;
+-            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account", {
++            type: import("@metamask/superstruct").Struct<"eip155:eoa" | "eip155:erc4337" | "bip122:p2pkh" | "bip122:p2sh" | "bip122:p2wpkh" | "bip122:p2tr" | "solana:data-account" | "tron:eoa", {
+                 "eip155:eoa": "eip155:eoa";
+                 "eip155:erc4337": "eip155:erc4337";
+                 "bip122:p2pkh": "bip122:p2pkh";
+@@ -671,6 +674,7 @@ export declare const UpdateAccountRequestStruct: import("@metamask/superstruct")
+                 "bip122:p2wpkh": "bip122:p2wpkh";
+                 "bip122:p2tr": "bip122:p2tr";
+                 "solana:data-account": "solana:data-account";
++                "tron:eoa": "tron:eoa";
+             }>;
+             address: import("@metamask/superstruct").Struct<string, null>;
+             scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
+diff --git a/dist/rpc.d.mts.map b/dist/rpc.d.mts.map
+index 3bb4f5ee9202d26dc65ae2ba87e9eebb1e7ea05d..0cb4723842a25fc5328ab1c804d26a5407dc076a 100644
+--- a/dist/rpc.d.mts.map
++++ b/dist/rpc.d.mts.map
+@@ -1 +1 @@
+-{"version":3,"file":"rpc.d.mts","sourceRoot":"","sources":["../src/rpc.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"rpc.d.mts","sourceRoot":"","sources":["../src/rpc.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/trx/constants.cjs b/dist/trx/constants.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..8bb7d4abb6b04aaad0d15e1c75261c69c01374ab
+--- /dev/null
++++ b/dist/trx/constants.cjs
+@@ -0,0 +1,14 @@
++"use strict";
++// istanbul ignore file
++Object.defineProperty(exports, "__esModule", { value: true });
++exports.TrxScope = void 0;
++/**
++ * Scopes for TRON account type. See {@link KeyringAccount.scopes}.
++ */
++var TrxScope;
++(function (TrxScope) {
++    TrxScope["Mainnet"] = "tron:728126428";
++    TrxScope["Nile"] = "tron:3448148188";
++    TrxScope["Shasta"] = "tron:2494104990";
++})(TrxScope || (exports.TrxScope = TrxScope = {}));
++//# sourceMappingURL=constants.cjs.map
+\ No newline at end of file
+diff --git a/dist/trx/constants.cjs.map b/dist/trx/constants.cjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..1f60c74b634bcda73851e06773fcbd146141b848
+--- /dev/null
++++ b/dist/trx/constants.cjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"constants.cjs","sourceRoot":"","sources":["../../src/trx/constants.ts"],"names":[],"mappings":";AAAA,uBAAuB;;;AAEvB;;GAEG;AACH,IAAY,QAIX;AAJD,WAAY,QAAQ;IAClB,sCAA0B,CAAA;IAC1B,oCAAwB,CAAA;IACxB,sCAA0B,CAAA;AAC5B,CAAC,EAJW,QAAQ,wBAAR,QAAQ,QAInB","sourcesContent":["// istanbul ignore file\n\n/**\n * Scopes for TRON account type. See {@link KeyringAccount.scopes}.\n */\nexport enum TrxScope {\n  Mainnet = 'tron:728126428',\n  Nile = 'tron:3448148188',\n  Shasta = 'tron:2494104990',\n}\n"]}
+\ No newline at end of file
+diff --git a/dist/trx/constants.d.cts b/dist/trx/constants.d.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..ce49cc220f63a5a57c6ba1416758035c2e622db1
+--- /dev/null
++++ b/dist/trx/constants.d.cts
+@@ -0,0 +1,9 @@
++/**
++ * Scopes for TRON account type. See {@link KeyringAccount.scopes}.
++ */
++export declare enum TrxScope {
++    Mainnet = "tron:728126428",
++    Nile = "tron:3448148188",
++    Shasta = "tron:2494104990"
++}
++//# sourceMappingURL=constants.d.cts.map
+\ No newline at end of file
+diff --git a/dist/trx/constants.d.cts.map b/dist/trx/constants.d.cts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..c573b6b75c1bc2d6ae2f11158dee5c947ab08cd6
+--- /dev/null
++++ b/dist/trx/constants.d.cts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"constants.d.cts","sourceRoot":"","sources":["../../src/trx/constants.ts"],"names":[],"mappings":"AAEA;;GAEG;AACH,oBAAY,QAAQ;IAClB,OAAO,mBAAmB;IAC1B,IAAI,oBAAoB;IACxB,MAAM,oBAAoB;CAC3B"}
+\ No newline at end of file
+diff --git a/dist/trx/constants.d.mts b/dist/trx/constants.d.mts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b6e66ef800e56351fdfb066f2bea58f67164150f
+--- /dev/null
++++ b/dist/trx/constants.d.mts
+@@ -0,0 +1,9 @@
++/**
++ * Scopes for TRON account type. See {@link KeyringAccount.scopes}.
++ */
++export declare enum TrxScope {
++    Mainnet = "tron:728126428",
++    Nile = "tron:3448148188",
++    Shasta = "tron:2494104990"
++}
++//# sourceMappingURL=constants.d.mts.map
+\ No newline at end of file
+diff --git a/dist/trx/constants.d.mts.map b/dist/trx/constants.d.mts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..61dbb64c4b6c06445a7414e4313d998e1376836f
+--- /dev/null
++++ b/dist/trx/constants.d.mts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"constants.d.mts","sourceRoot":"","sources":["../../src/trx/constants.ts"],"names":[],"mappings":"AAEA;;GAEG;AACH,oBAAY,QAAQ;IAClB,OAAO,mBAAmB;IAC1B,IAAI,oBAAoB;IACxB,MAAM,oBAAoB;CAC3B"}
+\ No newline at end of file
+diff --git a/dist/trx/constants.mjs b/dist/trx/constants.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..413968b5aec3ffedf6b5b4a1eb248ba805d5dbbd
+--- /dev/null
++++ b/dist/trx/constants.mjs
+@@ -0,0 +1,11 @@
++// istanbul ignore file
++/**
++ * Scopes for TRON account type. See {@link KeyringAccount.scopes}.
++ */
++export var TrxScope;
++(function (TrxScope) {
++    TrxScope["Mainnet"] = "tron:728126428";
++    TrxScope["Nile"] = "tron:3448148188";
++    TrxScope["Shasta"] = "tron:2494104990";
++})(TrxScope || (TrxScope = {}));
++//# sourceMappingURL=constants.mjs.map
+\ No newline at end of file
+diff --git a/dist/trx/constants.mjs.map b/dist/trx/constants.mjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..1f20d3681150a70e3109dcb970022d98632d05fd
+--- /dev/null
++++ b/dist/trx/constants.mjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"constants.mjs","sourceRoot":"","sources":["../../src/trx/constants.ts"],"names":[],"mappings":"AAAA,uBAAuB;AAEvB;;GAEG;AACH,MAAM,CAAN,IAAY,QAIX;AAJD,WAAY,QAAQ;IAClB,sCAA0B,CAAA;IAC1B,oCAAwB,CAAA;IACxB,sCAA0B,CAAA;AAC5B,CAAC,EAJW,QAAQ,KAAR,QAAQ,QAInB","sourcesContent":["// istanbul ignore file\n\n/**\n * Scopes for TRON account type. See {@link KeyringAccount.scopes}.\n */\nexport enum TrxScope {\n  Mainnet = 'tron:728126428',\n  Nile = 'tron:3448148188',\n  Shasta = 'tron:2494104990',\n}\n"]}
+\ No newline at end of file
+diff --git a/dist/trx/index.cjs b/dist/trx/index.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..f97613de1a15109bb08ca7512ce5eec19c0d6b44
+--- /dev/null
++++ b/dist/trx/index.cjs
+@@ -0,0 +1,19 @@
++"use strict";
++var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
++    if (k2 === undefined) k2 = k;
++    var desc = Object.getOwnPropertyDescriptor(m, k);
++    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
++      desc = { enumerable: true, get: function() { return m[k]; } };
++    }
++    Object.defineProperty(o, k2, desc);
++}) : (function(o, m, k, k2) {
++    if (k2 === undefined) k2 = k;
++    o[k2] = m[k];
++}));
++var __exportStar = (this && this.__exportStar) || function(m, exports) {
++    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
++};
++Object.defineProperty(exports, "__esModule", { value: true });
++__exportStar(require("./constants.cjs"), exports);
++__exportStar(require("./types.cjs"), exports);
++//# sourceMappingURL=index.cjs.map
+\ No newline at end of file
+diff --git a/dist/trx/index.cjs.map b/dist/trx/index.cjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..e46697ef16f73736f3388cfc93af7c61a942c8ef
+--- /dev/null
++++ b/dist/trx/index.cjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"index.cjs","sourceRoot":"","sources":["../../src/trx/index.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA,kDAA4B;AAC5B,8CAAwB","sourcesContent":["export * from './constants';\nexport * from './types';\n"]}
+\ No newline at end of file
+diff --git a/dist/trx/index.d.cts b/dist/trx/index.d.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4a61a378fe4f2b87a56b5ff76a15d337d1aa50d9
+--- /dev/null
++++ b/dist/trx/index.d.cts
+@@ -0,0 +1,3 @@
++export * from "./constants.cjs";
++export * from "./types.cjs";
++//# sourceMappingURL=index.d.cts.map
+\ No newline at end of file
+diff --git a/dist/trx/index.d.cts.map b/dist/trx/index.d.cts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..ebf04ad0bb896aca63465a8805e2091649d960eb
+--- /dev/null
++++ b/dist/trx/index.d.cts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"index.d.cts","sourceRoot":"","sources":["../../src/trx/index.ts"],"names":[],"mappings":"AAAA,gCAA4B;AAC5B,4BAAwB"}
+\ No newline at end of file
+diff --git a/dist/trx/index.d.mts b/dist/trx/index.d.mts
+new file mode 100644
+index 0000000000000000000000000000000000000000..fc2c7ffb2d2f8f04b4d095b8712b59b4538398f8
+--- /dev/null
++++ b/dist/trx/index.d.mts
+@@ -0,0 +1,3 @@
++export * from "./constants.mjs";
++export * from "./types.mjs";
++//# sourceMappingURL=index.d.mts.map
+\ No newline at end of file
+diff --git a/dist/trx/index.d.mts.map b/dist/trx/index.d.mts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..69cb12d3e83b1b5a24827cca68fe23b9e64b5920
+--- /dev/null
++++ b/dist/trx/index.d.mts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"index.d.mts","sourceRoot":"","sources":["../../src/trx/index.ts"],"names":[],"mappings":"AAAA,gCAA4B;AAC5B,4BAAwB"}
+\ No newline at end of file
+diff --git a/dist/trx/index.mjs b/dist/trx/index.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..200a3ce21121c832efbf1db52e2f1569f603cf5d
+--- /dev/null
++++ b/dist/trx/index.mjs
+@@ -0,0 +1,3 @@
++export * from "./constants.mjs";
++export * from "./types.mjs";
++//# sourceMappingURL=index.mjs.map
+\ No newline at end of file
+diff --git a/dist/trx/index.mjs.map b/dist/trx/index.mjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..02c6f0aaccfd0ca44e83d2ea7b2b203c5e5dc975
+--- /dev/null
++++ b/dist/trx/index.mjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"index.mjs","sourceRoot":"","sources":["../../src/trx/index.ts"],"names":[],"mappings":"AAAA,gCAA4B;AAC5B,4BAAwB","sourcesContent":["export * from './constants';\nexport * from './types';\n"]}
+\ No newline at end of file
+diff --git a/dist/trx/types.cjs b/dist/trx/types.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..0349a5a2d2feb39894b288c64022685cba51ef6c
+--- /dev/null
++++ b/dist/trx/types.cjs
+@@ -0,0 +1,40 @@
++"use strict";
++Object.defineProperty(exports, "__esModule", { value: true });
++exports.TrxEoaAccountStruct = exports.TrxMethod = exports.TrxAddressStruct = void 0;
++const keyring_utils_1 = require("@metamask/keyring-utils");
++const superstruct_1 = require("@metamask/superstruct");
++const utils_1 = require("@metamask/utils");
++const api_1 = require("../api/index.cjs");
++/**
++ * TRON addresses are Base58-encoded strings that are exactly 34 characters long
++ * and start with the letter 'T'.
++ */
++exports.TrxAddressStruct = (0, utils_1.definePattern)('TrxAddress', /^T[1-9A-HJ-NP-Za-km-z]{33}$/u);
++/**
++ * Supported TRON methods.
++ */
++var TrxMethod;
++(function (TrxMethod) {
++    TrxMethod["SignMessageV2"] = "signMessageV2";
++    TrxMethod["VerifyMessageV2"] = "verifyMessageV2";
++})(TrxMethod || (exports.TrxMethod = TrxMethod = {}));
++exports.TrxEoaAccountStruct = (0, keyring_utils_1.object)({
++    ...api_1.KeyringAccountStruct.schema,
++    /**
++     * Account address.
++     */
++    address: exports.TrxAddressStruct,
++    /**
++     * Account type.
++     */
++    type: (0, superstruct_1.literal)(`${api_1.TrxAccountType.Eoa}`),
++    /**
++     * Account supported scopes (CAIP-2 chain IDs).
++     */
++    scopes: (0, superstruct_1.nonempty)((0, superstruct_1.array)(api_1.CaipChainIdStruct)),
++    /**
++     * Account supported methods.
++     */
++    methods: (0, superstruct_1.array)((0, superstruct_1.enums)(Object.values(TrxMethod))),
++});
++//# sourceMappingURL=types.cjs.map
+\ No newline at end of file
+diff --git a/dist/trx/types.cjs.map b/dist/trx/types.cjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..858e89be820449d05916afb84bc227c2f73dc287
+--- /dev/null
++++ b/dist/trx/types.cjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"types.cjs","sourceRoot":"","sources":["../../src/trx/types.ts"],"names":[],"mappings":";;;AAAA,2DAAiD;AAEjD,uDAAwE;AACxE,2CAAgD;AAEhD,0CAIgB;AAEhB;;;GAGG;AACU,QAAA,gBAAgB,GAAG,IAAA,qBAAa,EAC3C,YAAY,EACZ,8BAA8B,CAC/B,CAAC;AAEF;;GAEG;AACH,IAAY,SAGX;AAHD,WAAY,SAAS;IACnB,4CAA+B,CAAA;IAC/B,gDAAmC,CAAA;AACrC,CAAC,EAHW,SAAS,yBAAT,SAAS,QAGpB;AAEY,QAAA,mBAAmB,GAAG,IAAA,sBAAM,EAAC;IACxC,GAAG,0BAAoB,CAAC,MAAM;IAE9B;;OAEG;IACH,OAAO,EAAE,wBAAgB;IAEzB;;OAEG;IACH,IAAI,EAAE,IAAA,qBAAO,EAAC,GAAG,oBAAc,CAAC,GAAG,EAAE,CAAC;IAEtC;;OAEG;IACH,MAAM,EAAE,IAAA,sBAAQ,EAAC,IAAA,mBAAK,EAAC,uBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,IAAA,mBAAK,EAAC,IAAA,mBAAK,EAAC,MAAM,CAAC,MAAM,CAAC,SAAS,CAAC,CAAC,CAAC;CAChD,CAAC,CAAC","sourcesContent":["import { object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { array, enums, literal, nonempty } from '@metamask/superstruct';\nimport { definePattern } from '@metamask/utils';\n\nimport {\n  CaipChainIdStruct,\n  KeyringAccountStruct,\n  TrxAccountType,\n} from '../api';\n\n/**\n * TRON addresses are Base58-encoded strings that are exactly 34 characters long\n * and start with the letter 'T'.\n */\nexport const TrxAddressStruct = definePattern(\n  'TrxAddress',\n  /^T[1-9A-HJ-NP-Za-km-z]{33}$/u,\n);\n\n/**\n * Supported TRON methods.\n */\nexport enum TrxMethod {\n  SignMessageV2 = 'signMessageV2',\n  VerifyMessageV2 = 'verifyMessageV2',\n}\n\nexport const TrxEoaAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n\n  /**\n   * Account address.\n   */\n  address: TrxAddressStruct,\n\n  /**\n   * Account type.\n   */\n  type: literal(`${TrxAccountType.Eoa}`),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(enums(Object.values(TrxMethod))),\n});\n\nexport type TrxEoaAccount = Infer<typeof TrxEoaAccountStruct>;\n"]}
+\ No newline at end of file
+diff --git a/dist/trx/types.d.cts b/dist/trx/types.d.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..0a40164d4d69a41d7b639e7370e8ace4cd19b8e3
+--- /dev/null
++++ b/dist/trx/types.d.cts
+@@ -0,0 +1,45 @@
++import type { Infer } from "@metamask/superstruct";
++/**
++ * TRON addresses are Base58-encoded strings that are exactly 34 characters long
++ * and start with the letter 'T'.
++ */
++export declare const TrxAddressStruct: import("@metamask/superstruct").Struct<string, null>;
++/**
++ * Supported TRON methods.
++ */
++export declare enum TrxMethod {
++    SignMessageV2 = "signMessageV2",
++    VerifyMessageV2 = "verifyMessageV2"
++}
++export declare const TrxEoaAccountStruct: import("@metamask/superstruct").Struct<{
++    type: "tron:eoa";
++    id: string;
++    options: Record<string, import("@metamask/utils").Json>;
++    address: string;
++    scopes: `${string}:${string}`[];
++    methods: TrxMethod[];
++}, {
++    /**
++     * Account address.
++     */
++    address: import("@metamask/superstruct").Struct<string, null>;
++    /**
++     * Account type.
++     */
++    type: import("@metamask/superstruct").Struct<"tron:eoa", "tron:eoa">;
++    /**
++     * Account supported scopes (CAIP-2 chain IDs).
++     */
++    scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
++    /**
++     * Account supported methods.
++     */
++    methods: import("@metamask/superstruct").Struct<TrxMethod[], import("@metamask/superstruct").Struct<TrxMethod, {
++        signMessageV2: TrxMethod.SignMessageV2;
++        verifyMessageV2: TrxMethod.VerifyMessageV2;
++    }>>;
++    id: import("@metamask/superstruct").Struct<string, null>;
++    options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
++}>;
++export type TrxEoaAccount = Infer<typeof TrxEoaAccountStruct>;
++//# sourceMappingURL=types.d.cts.map
+\ No newline at end of file
+diff --git a/dist/trx/types.d.cts.map b/dist/trx/types.d.cts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..7b2adde0308db077d180862dc3dcb1445de998d5
+--- /dev/null
++++ b/dist/trx/types.d.cts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"types.d.cts","sourceRoot":"","sources":["../../src/trx/types.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAUnD;;;GAGG;AACH,eAAO,MAAM,gBAAgB,sDAG5B,CAAC;AAEF;;GAEG;AACH,oBAAY,SAAS;IACnB,aAAa,kBAAkB;IAC/B,eAAe,oBAAoB;CACpC;AAED,eAAO,MAAM,mBAAmB;;;;;;;;IAG9B;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;;;;;;EAEH,CAAC;AAEH,MAAM,MAAM,aAAa,GAAG,KAAK,CAAC,OAAO,mBAAmB,CAAC,CAAC"}
+\ No newline at end of file
+diff --git a/dist/trx/types.d.mts b/dist/trx/types.d.mts
+new file mode 100644
+index 0000000000000000000000000000000000000000..1efb63d41ba922621c37c452fbca3ea6b7805146
+--- /dev/null
++++ b/dist/trx/types.d.mts
+@@ -0,0 +1,45 @@
++import type { Infer } from "@metamask/superstruct";
++/**
++ * TRON addresses are Base58-encoded strings that are exactly 34 characters long
++ * and start with the letter 'T'.
++ */
++export declare const TrxAddressStruct: import("@metamask/superstruct").Struct<string, null>;
++/**
++ * Supported TRON methods.
++ */
++export declare enum TrxMethod {
++    SignMessageV2 = "signMessageV2",
++    VerifyMessageV2 = "verifyMessageV2"
++}
++export declare const TrxEoaAccountStruct: import("@metamask/superstruct").Struct<{
++    type: "tron:eoa";
++    id: string;
++    options: Record<string, import("@metamask/utils").Json>;
++    address: string;
++    scopes: `${string}:${string}`[];
++    methods: TrxMethod[];
++}, {
++    /**
++     * Account address.
++     */
++    address: import("@metamask/superstruct").Struct<string, null>;
++    /**
++     * Account type.
++     */
++    type: import("@metamask/superstruct").Struct<"tron:eoa", "tron:eoa">;
++    /**
++     * Account supported scopes (CAIP-2 chain IDs).
++     */
++    scopes: import("@metamask/superstruct").Struct<`${string}:${string}`[], import("@metamask/superstruct").Struct<`${string}:${string}`, null>>;
++    /**
++     * Account supported methods.
++     */
++    methods: import("@metamask/superstruct").Struct<TrxMethod[], import("@metamask/superstruct").Struct<TrxMethod, {
++        signMessageV2: TrxMethod.SignMessageV2;
++        verifyMessageV2: TrxMethod.VerifyMessageV2;
++    }>>;
++    id: import("@metamask/superstruct").Struct<string, null>;
++    options: import("@metamask/superstruct").Struct<Record<string, import("@metamask/utils").Json>, null>;
++}>;
++export type TrxEoaAccount = Infer<typeof TrxEoaAccountStruct>;
++//# sourceMappingURL=types.d.mts.map
+\ No newline at end of file
+diff --git a/dist/trx/types.d.mts.map b/dist/trx/types.d.mts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..047059f409092ca7c95ec3955d82af95341f3310
+--- /dev/null
++++ b/dist/trx/types.d.mts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"types.d.mts","sourceRoot":"","sources":["../../src/trx/types.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,KAAK,EAAE,8BAA8B;AAUnD;;;GAGG;AACH,eAAO,MAAM,gBAAgB,sDAG5B,CAAC;AAEF;;GAEG;AACH,oBAAY,SAAS;IACnB,aAAa,kBAAkB;IAC/B,eAAe,oBAAoB;CACpC;AAED,eAAO,MAAM,mBAAmB;;;;;;;;IAG9B;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;IAGH;;OAEG;;;;;;;EAEH,CAAC;AAEH,MAAM,MAAM,aAAa,GAAG,KAAK,CAAC,OAAO,mBAAmB,CAAC,CAAC"}
+\ No newline at end of file
+diff --git a/dist/trx/types.mjs b/dist/trx/types.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..a63f1f8753f245a4cbc812f6d2c5f5e1a503837b
+--- /dev/null
++++ b/dist/trx/types.mjs
+@@ -0,0 +1,37 @@
++import { object } from "@metamask/keyring-utils";
++import { array, enums, literal, nonempty } from "@metamask/superstruct";
++import { definePattern } from "@metamask/utils";
++import { CaipChainIdStruct, KeyringAccountStruct, TrxAccountType } from "../api/index.mjs";
++/**
++ * TRON addresses are Base58-encoded strings that are exactly 34 characters long
++ * and start with the letter 'T'.
++ */
++export const TrxAddressStruct = definePattern('TrxAddress', /^T[1-9A-HJ-NP-Za-km-z]{33}$/u);
++/**
++ * Supported TRON methods.
++ */
++export var TrxMethod;
++(function (TrxMethod) {
++    TrxMethod["SignMessageV2"] = "signMessageV2";
++    TrxMethod["VerifyMessageV2"] = "verifyMessageV2";
++})(TrxMethod || (TrxMethod = {}));
++export const TrxEoaAccountStruct = object({
++    ...KeyringAccountStruct.schema,
++    /**
++     * Account address.
++     */
++    address: TrxAddressStruct,
++    /**
++     * Account type.
++     */
++    type: literal(`${TrxAccountType.Eoa}`),
++    /**
++     * Account supported scopes (CAIP-2 chain IDs).
++     */
++    scopes: nonempty(array(CaipChainIdStruct)),
++    /**
++     * Account supported methods.
++     */
++    methods: array(enums(Object.values(TrxMethod))),
++});
++//# sourceMappingURL=types.mjs.map
+\ No newline at end of file
+diff --git a/dist/trx/types.mjs.map b/dist/trx/types.mjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..b82eb214c12a842de61bd4266d85bdff7184e077
+--- /dev/null
++++ b/dist/trx/types.mjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"types.mjs","sourceRoot":"","sources":["../../src/trx/types.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,gCAAgC;AAEjD,OAAO,EAAE,KAAK,EAAE,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,8BAA8B;AACxE,OAAO,EAAE,aAAa,EAAE,wBAAwB;AAEhD,OAAO,EACL,iBAAiB,EACjB,oBAAoB,EACpB,cAAc,EACf,yBAAe;AAEhB;;;GAGG;AACH,MAAM,CAAC,MAAM,gBAAgB,GAAG,aAAa,CAC3C,YAAY,EACZ,8BAA8B,CAC/B,CAAC;AAEF;;GAEG;AACH,MAAM,CAAN,IAAY,SAGX;AAHD,WAAY,SAAS;IACnB,4CAA+B,CAAA;IAC/B,gDAAmC,CAAA;AACrC,CAAC,EAHW,SAAS,KAAT,SAAS,QAGpB;AAED,MAAM,CAAC,MAAM,mBAAmB,GAAG,MAAM,CAAC;IACxC,GAAG,oBAAoB,CAAC,MAAM;IAE9B;;OAEG;IACH,OAAO,EAAE,gBAAgB;IAEzB;;OAEG;IACH,IAAI,EAAE,OAAO,CAAC,GAAG,cAAc,CAAC,GAAG,EAAE,CAAC;IAEtC;;OAEG;IACH,MAAM,EAAE,QAAQ,CAAC,KAAK,CAAC,iBAAiB,CAAC,CAAC;IAE1C;;OAEG;IACH,OAAO,EAAE,KAAK,CAAC,KAAK,CAAC,MAAM,CAAC,MAAM,CAAC,SAAS,CAAC,CAAC,CAAC;CAChD,CAAC,CAAC","sourcesContent":["import { object } from '@metamask/keyring-utils';\nimport type { Infer } from '@metamask/superstruct';\nimport { array, enums, literal, nonempty } from '@metamask/superstruct';\nimport { definePattern } from '@metamask/utils';\n\nimport {\n  CaipChainIdStruct,\n  KeyringAccountStruct,\n  TrxAccountType,\n} from '../api';\n\n/**\n * TRON addresses are Base58-encoded strings that are exactly 34 characters long\n * and start with the letter 'T'.\n */\nexport const TrxAddressStruct = definePattern(\n  'TrxAddress',\n  /^T[1-9A-HJ-NP-Za-km-z]{33}$/u,\n);\n\n/**\n * Supported TRON methods.\n */\nexport enum TrxMethod {\n  SignMessageV2 = 'signMessageV2',\n  VerifyMessageV2 = 'verifyMessageV2',\n}\n\nexport const TrxEoaAccountStruct = object({\n  ...KeyringAccountStruct.schema,\n\n  /**\n   * Account address.\n   */\n  address: TrxAddressStruct,\n\n  /**\n   * Account type.\n   */\n  type: literal(`${TrxAccountType.Eoa}`),\n\n  /**\n   * Account supported scopes (CAIP-2 chain IDs).\n   */\n  scopes: nonempty(array(CaipChainIdStruct)),\n\n  /**\n   * Account supported methods.\n   */\n  methods: array(enums(Object.values(TrxMethod))),\n});\n\nexport type TrxEoaAccount = Infer<typeof TrxEoaAccountStruct>;\n"]}
+\ No newline at end of file
