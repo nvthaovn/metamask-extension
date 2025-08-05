@@ -1,5 +1,5 @@
 import { JsonRpcRequest } from '@metamask/utils';
-import { SecurityAlertResponse } from './types';
+import { SecurityAlertResponse, ShieldParams } from './types';
 
 const ENDPOINT_VALIDATE = 'validate';
 
@@ -24,19 +24,46 @@ export async function validateWithSecurityAlertsAPI(
   body:
     | SecurityAlertsAPIRequestBody
     | Pick<JsonRpcRequest, 'method' | 'params'>,
+  shieldParams?: ShieldParams,
 ): Promise<SecurityAlertResponse> {
   const endpoint = `${ENDPOINT_VALIDATE}/${chainId}`;
-  return request(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
+
+  const isShieldEnabled = shieldParams?.isShieldEnabled
+    ? await shieldParams.isShieldEnabled()
+    : false;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Shield endpoint requires access token.
+  if (isShieldEnabled) {
+    if (!shieldParams?.getAccessToken) {
+      throw new Error(
+        'getAccessToken is required when isShieldEnabled is true',
+      );
+    }
+    const accessToken = await shieldParams.getAccessToken();
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return request(
+    endpoint,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers,
     },
-  });
+    isShieldEnabled,
+  );
 }
 
-async function request(endpoint: string, options?: RequestInit) {
-  const url = getUrl(endpoint);
+async function request(
+  endpoint: string,
+  options?: RequestInit,
+  isShieldEnabled: boolean = false,
+) {
+  const url = getUrl(endpoint, isShieldEnabled);
 
   const response = await fetch(url, options);
 
@@ -49,8 +76,10 @@ async function request(endpoint: string, options?: RequestInit) {
   return await response.json();
 }
 
-function getUrl(endpoint: string) {
-  const host = process.env.SECURITY_ALERTS_API_URL;
+function getUrl(endpoint: string, isShieldEnabled: boolean = false) {
+  const host = isShieldEnabled
+    ? process.env.SECURITY_ALERTS_API_URL_SHIELD
+    : process.env.SECURITY_ALERTS_API_URL;
 
   if (!host) {
     throw new Error('Security alerts API URL is not set');

@@ -2037,6 +2037,14 @@ export default class MetamaskController extends EventEmitter {
     this.seedlessOnboardingController =
       controllersByName.SeedlessOnboardingController;
 
+    // TODO implement
+    this.getShieldParams = () => {
+      return {
+        isShieldEnabled: () => Promise.resolve(false),
+        getAccessToken: () => Promise.resolve(''),
+      };
+    };
+
     this.notificationServicesController.init();
     this.snapController.init();
     this.cronjobController.init();
@@ -6844,6 +6852,7 @@ export default class MetamaskController extends EventEmitter {
       securityAlertsEnabled:
         this.preferencesController.state?.securityAlertsEnabled,
       updateSecurityAlertResponse: this.updateSecurityAlertResponse.bind(this),
+      shieldParams: this.getShieldParams(),
       ...otherParams,
     };
   }
@@ -7641,6 +7650,7 @@ export default class MetamaskController extends EventEmitter {
         this.appStateController,
         this.accountsController,
         this.updateSecurityAlertResponse.bind(this),
+        this.getShieldParams.bind(this),
       ),
     );
 

@@ -20,3 +20,11 @@ export type UpdateSecurityAlertResponse = (
   securityAlertId: string,
   securityAlertResponse: SecurityAlertResponse,
 ) => Promise<TransactionMeta | SignatureRequest>;
+
+/**
+ * Parameters for the transaction shield.
+ */
+export type ShieldParams = {
+  isShieldEnabled?: () => Promise<boolean>;
+  getAccessToken?: () => Promise<string>;
+};

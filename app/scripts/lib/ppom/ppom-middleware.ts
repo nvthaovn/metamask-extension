@@ -24,7 +24,11 @@ import {
   handlePPOMError,
   validateRequestWithPPOM,
 } from './ppom-util';
-import { SecurityAlertResponse, UpdateSecurityAlertResponse } from './types';
+import {
+  SecurityAlertResponse,
+  ShieldParams,
+  UpdateSecurityAlertResponse,
+} from './types';
 
 const CONFIRMATION_METHODS = Object.freeze([
   'eth_sendRawTransaction',
@@ -55,6 +59,7 @@ export type PPOMMiddlewareRequest<
  * @param appStateController
  * @param accountsController - Instance of AccountsController.
  * @param updateSecurityAlertResponse
+ * @param getShieldParams - Optional method to get transaction shield parameters.
  * @returns PPOMMiddleware function.
  */
 export function createPPOMMiddleware<
@@ -67,6 +72,7 @@ export function createPPOMMiddleware<
   appStateController: AppStateController,
   accountsController: AccountsController,
   updateSecurityAlertResponse: UpdateSecurityAlertResponse,
+  getShieldParams?: () => ShieldParams,
 ) {
   return async (
     req: PPOMMiddlewareRequest<Params>,
@@ -120,6 +126,7 @@ export function createPPOMMiddleware<
             securityAlertId,
             chainId: chainId as Hex,
             updateSecurityAlertResponse,
+            shieldParams: getShieldParams?.(),
           }),
       );
 
