@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Découvrez comment nous protégeons vos données personnelles"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Sauvegardez vos comptes et synchronisez vos paramètres."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Présentation de la fonction de sauvegarde et de synchronisation"
-  },
   "backupApprovalInfo": {
     "message": "Ce code secret est requis pour récupérer votre portefeuille si jamais vous perdez votre appareil, oubliez votre mot de passe, devez réinstaller MetaMask ou souhaitez accéder à votre portefeuille depuis un autre appareil."
   },

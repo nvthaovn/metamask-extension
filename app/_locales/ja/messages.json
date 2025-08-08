@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "当社のプライバシー保護への取り組みについて見る"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "アカウントをバックアップして設定を同期します。"
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "バックアップと同期のご紹介"
-  },
   "backupApprovalInfo": {
     "message": "このシークレット コードは、デバイスをなくしたとき、パスワードを忘れたとき、MetaMaskの再インストールが必要なとき、または別のデバイスでウォレットにアクセスするときに必要です。"
   },

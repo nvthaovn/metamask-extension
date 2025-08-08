@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Más información sobre cómo protegemos su privacidad"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Realice una copia de respaldo de sus cuentas y sincronice la configuración."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Presentamos la copia de respaldo y la sincronización"
-  },
   "backupApprovalInfo": {
     "message": "Este código secreto es necesario para que recupere la cartera en caso de que pierda el dispositivo, olvide su contraseña, tenga que volver a instalar MetaMask o quiera acceder a su monedero en otro dispositivo."
   },

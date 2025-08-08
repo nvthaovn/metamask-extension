@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Erfahren Sie, wie wir Ihre Privatsphäre schützen"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Sichern Sie Ihre Konten und Synchronisierungseinstellungen."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Einführung in Backup und Synchronisierung"
-  },
   "backupApprovalInfo": {
     "message": "Dieser geheime Code ist zum Wiedererlangen Ihrer Wallet erforderlich, falls Sie Ihr Gerät verlieren, Ihr Passwort vergessen, MetaMask neu installieren müssen oder auf einem anderen Gerät auf Ihre Wallet zugreifen möchten."
   },

@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Saiba como protegemos sua privacidade"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Faça backup de suas contas e configurações de sincronização."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Apresentando o backup e a sincronização"
-  },
   "backupApprovalInfo": {
     "message": "Esse código secreto é obrigatório para recuperar sua carteira caso você perca seu dispositivo, esqueça sua senha, precise reinstalar a MetaMask ou queira acessar sua carteira em outro dispositivo."
   },

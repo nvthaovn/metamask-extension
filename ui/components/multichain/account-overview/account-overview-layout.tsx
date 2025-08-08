@@ -1,9 +1,7 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 
 import {
-  showModal,
   removeSlide,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   setSelectedAccount,
@@ -12,7 +10,6 @@ import {
 import { Carousel } from '..';
 import {
   getAppIsLoading,
-  getSelectedAccount,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   hasCreatedSolanaAccount,
   ///: END:ONLY_INCLUDE_IF
@@ -24,10 +21,8 @@ import {
   MetaMetricsEventCategory,
 } from '../../../../shared/constants/metametrics';
 import type { CarouselSlide } from '../../../../shared/constants/app-state';
-import { TURN_ON_BACKUP_AND_SYNC_MODAL_NAME } from '../../app/modals/identity';
 import {
   useCarouselManagement,
-  BACKUPANDSYNC_SLIDE,
   BASIC_FUNCTIONALITY_SLIDE,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   SOLANA_SLIDE,
@@ -38,7 +33,6 @@ import {
 import { CreateSolanaAccountModal } from '../create-solana-account-modal';
 import { getLastSelectedSolanaAccount } from '../../../selectors/multichain';
 ///: END:ONLY_INCLUDE_IF
-import { getUseSmartAccount } from '../../../pages/confirmations/selectors/preferences';
 import { openBasicFunctionalityModal } from '../../../ducks/app/app';
 import DownloadMobileAppModal from '../../app/download-mobile-modal/download-mobile-modal';
 import {
@@ -81,10 +75,6 @@ export const AccountOverviewLayout = ({
 
     if (id === BASIC_FUNCTIONALITY_SLIDE.id) {
       dispatch(openBasicFunctionalityModal());
-    }
-
-    if (id === BACKUPANDSYNC_SLIDE.id) {
-      dispatch(showModal({ name: TURN_ON_BACKUP_AND_SYNC_MODAL_NAME }));
     }
 
     ///: BEGIN:ONLY_INCLUDE_IF(solana)

@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "개인 정보 보호 방법 알아보기"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "계정을 백업하고 설정을 동기화하세요."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "백업 및 동기화 소개"
-  },
   "backupApprovalInfo": {
     "message": "이 비밀 코드는 장치를 분실하여 지갑을 복구해야 하거나, 비밀번호를 잊은 경우, MetaMask를 다시 설치해야 하거나, 다른 장치에서 지갑에 액세스해야 할 때 필요합니다."
   },

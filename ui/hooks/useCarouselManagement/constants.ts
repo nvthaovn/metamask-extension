@@ -32,13 +32,6 @@ export const CARD_SLIDE = {
   href: 'https://portfolio.metamask.io/card',
 };
 
-export const BACKUPANDSYNC_SLIDE = {
-  id: 'backupAndSync',
-  title: 'backupAndSyncSlideTitle',
-  description: 'backupAndSyncSlideDescription',
-  image: './images/slide-backup-and-sync-icon.png',
-};
-
 export const DOWNLOAD_MOBILE_APP_SLIDE = {
   id: DOWNLOAD_MOBILE_APP_SLIDE_ID,
   title: 'slideDownloadMobileAppTitle',

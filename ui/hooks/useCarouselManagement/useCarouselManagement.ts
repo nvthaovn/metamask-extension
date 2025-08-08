@@ -22,7 +22,6 @@ import {
   FUND_SLIDE,
   CARD_SLIDE,
   ZERO_BALANCE,
-  BACKUPANDSYNC_SLIDE,
   BASIC_FUNCTIONALITY_SLIDE,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   SOLANA_SLIDE,
@@ -75,7 +74,6 @@ export const useCarouselManagement = ({
       undismissable: hasZeroBalance,
     };
     defaultSlides.push(CARD_SLIDE);
-    defaultSlides.push(BACKUPANDSYNC_SLIDE);
     if (!useExternalServices) {
       defaultSlides.push(BASIC_FUNCTIONALITY_SLIDE);
     }

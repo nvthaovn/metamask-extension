@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "了解我们如何保护您的隐私"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "备份您的账户并同步设置。"
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "备份与同步简介"
-  },
   "backupApprovalInfo": {
     "message": "如果不慎丢失个人设备，忘记密码，需要重新安装 MetaMask，或者需在另一台设备上访问钱包，使用此助记词才能恢复您的钱包。"
   },

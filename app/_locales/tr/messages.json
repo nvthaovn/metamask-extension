@@ -654,12 +654,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Gizliliğinizi nasıl koruduğumuzu öğrenin"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Hesaplarınızı yedekleyin ve ayarları senkronize edin."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Yedekleme ve senkronizasyon hizmetinizde"
-  },
   "backupApprovalInfo": {
     "message": "Bu gizli kod, cihazınızı kaybetmeniz, şifrenizi unutmanız, MetaMask'ı yeniden kurmanızın gerektiği ya da cüzdanınıza başka bir cihazdan oturum açmak istemeniz durumunda cüzdanınıza erişim sağlamak için gereklidir."
   },

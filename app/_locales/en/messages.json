@@ -680,12 +680,6 @@
   "backupAndSyncPrivacyLink": {
     "message": "Learn how we protect your privacy"
   },
-  "backupAndSyncSlideDescription": {
-    "message": "Back up your accounts and sync settings."
-  },
-  "backupAndSyncSlideTitle": {
-    "message": "Introducing backup and sync"
-  },
   "backupApprovalInfo": {
     "message": "This secret code is required to recover your wallet in case you lose your device, forget your password, have to re-install MetaMask, or want to access your wallet on another device."
   },
