@@ -5410,18 +5410,6 @@
   "skipDeepLinkInterstitialDescription": {
     "message": "Wenn Sie diese Option aktivieren, wird der Zwischenbildschirm übersprungen, der beim Öffnen von Deeplinks in MetaMask angezeigt wird. Ein „Deeplink“ ist ein Link wie https://link.metamask.io/home, der MetaMask öffnet; diese Links können von anderen verschleiert werden. Der Zwischenbildschirm soll Sie davor schützen, versehentlich Seiten in MetaMask zu öffnen, die Ihre Konten, Token, Ihren Verlauf, Kontostände, Einstellungen oder andere potenziell sensible Daten anzeigen könnten. Diese Einstellung gilt nur für von MetaMask signierte Links."
   },
-  "slideBridgeDescription": {
-    "message": "Bewegen Sie sich über 9 Chains, und zwar in Ihrer Wallet"
-  },
-  "slideBridgeTitle": {
-    "message": "Bereit zum Bridgen?"
-  },
-  "slideCashOutDescription": {
-    "message": "Verkaufen Sie Ihre Krypto gegen Bargeld"
-  },
-  "slideCashOutTitle": {
-    "message": "Bargeldauszahlung mit MetaMask"
-  },
   "slideDebitCardDescription": {
     "message": "In ausgewählten Regionen verfügbar"
   },
@@ -5434,29 +5422,11 @@
   "slideFundWalletTitle": {
     "message": "Überweisen Sie Guthaben auf Ihre Wallet"
   },
-  "slideMultiSrpDescription": {
-    "message": "Mehrere Wallets in MetaMask importieren und verwenden"
-  },
-  "slideMultiSrpTitle": {
-    "message": "Mehrere geheime Wiederherstellungsphrasen hinzufügen"
-  },
-  "slideSmartAccountUpgradeDescription": {
-    "message": "Dieselbe Adresse, intelligentere Funktionen"
-  },
-  "slideSmartAccountUpgradeTitle": {
-    "message": "Beginnen Sie mit der Nutzung von Smart-Konten"
-  },
   "slideSolanaDescription": {
     "message": "Erstellen Sie ein Solana-Konto, um loszulegen"
   },
   "slideSolanaTitle": {
     "message": "Solana wird nun unterstützt"
-  },
-  "slideSweepStakeDescription": {
-    "message": "Erstellen Sie gleich ein NFT für eine Gewinnchance"
-  },
-  "slideSweepStakeTitle": {
-    "message": "Nehmen Sie am $5000-USDC-Giveaway teil!"
   },
   "smartAccountAccept": {
     "message": "Smart-Konto verwenden"

@@ -5410,18 +5410,6 @@
   "skipDeepLinkInterstitialDescription": {
     "message": "Включение этой опции позволит пропустить промежуточный экран, который отображается при открытии диплинков в MetaMask. Диплинк — это ссылка типа https://link.metamask.io/home, которая приведет к открытию MetaMask; эти ссылки могут быть замаскированы другими людьми. Промежуточный экран предназначен для защиты от случайного открытия страниц в MetaMask, которые могут отображать ваши счета, токены, историю, балансы, настройки или другую потенциально конфиденциальную информацию. Этот параметр применяется только к ссылкам, подписанным MetaMask."
   },
-  "slideBridgeDescription": {
-    "message": "Перемещайтесь по 9 блокчейнам, все из которых находятся в Вашем кошельке"
-  },
-  "slideBridgeTitle": {
-    "message": "Готовы создать мост?"
-  },
-  "slideCashOutDescription": {
-    "message": "Продайте свою криптовалюту за наличные"
-  },
-  "slideCashOutTitle": {
-    "message": "Вывести деньги с помощью MetaMask"
-  },
   "slideDebitCardDescription": {
     "message": "Доступна в некоторых регионах"
   },
@@ -5434,29 +5422,11 @@
   "slideFundWalletTitle": {
     "message": "Пополните свой кошелек"
   },
-  "slideMultiSrpDescription": {
-    "message": "Импорт и использование нескольких кошельков в MetaMask"
-  },
-  "slideMultiSrpTitle": {
-    "message": "Добавьте несколько секретных фраз для восстановления"
-  },
-  "slideSmartAccountUpgradeDescription": {
-    "message": "Один и тот же адрес, более умные функции"
-  },
-  "slideSmartAccountUpgradeTitle": {
-    "message": "Начните использовать смарт-счета"
-  },
   "slideSolanaDescription": {
     "message": "Создайте счет Solana, чтобы начать"
   },
   "slideSolanaTitle": {
     "message": "Теперь поддерживается Solana"
-  },
-  "slideSweepStakeDescription": {
-    "message": "Выполните минтинг NFT и получите шанс выиграть"
-  },
-  "slideSweepStakeTitle": {
-    "message": "Примите участие в розыгрыше USDC на $5000!"
   },
   "smartAccountAccept": {
     "message": "Использовать смарт-счет"

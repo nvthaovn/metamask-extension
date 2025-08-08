@@ -5,7 +5,6 @@ import { useHistory } from 'react-router-dom';
 import {
   showModal,
   removeSlide,
-  setAccountDetailsAddress,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   setSelectedAccount,
   ///: END:ONLY_INCLUDE_IF
@@ -25,12 +24,10 @@ import {
   MetaMetricsEventCategory,
 } from '../../../../shared/constants/metametrics';
 import type { CarouselSlide } from '../../../../shared/constants/app-state';
-import { SMART_ACCOUNT_UPDATE } from '../../../helpers/constants/routes';
 import { TURN_ON_BACKUP_AND_SYNC_MODAL_NAME } from '../../app/modals/identity';
 import {
   useCarouselManagement,
   BACKUPANDSYNC_SLIDE,
-  SMART_ACCOUNT_UPGRADE_SLIDE,
   BASIC_FUNCTIONALITY_SLIDE,
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   SOLANA_SLIDE,
@@ -61,9 +58,6 @@ export const AccountOverviewLayout = ({
   const isLoading = useSelector(getAppIsLoading);
   const trackEvent = useContext(MetaMetricsContext);
   const [hasRendered, setHasRendered] = useState(false);
-  const history = useHistory();
-  const selectedAccount = useSelector(getSelectedAccount);
-  const smartAccountOptIn = useSelector(getUseSmartAccount);
 
   ///: BEGIN:ONLY_INCLUDE_IF(solana)
   const [showCreateSolanaAccountModal, setShowCreateSolanaAccountModal] =
@@ -102,14 +96,6 @@ export const AccountOverviewLayout = ({
       }
     }
     ///: END:ONLY_INCLUDE_IF
-
-    if (id === SMART_ACCOUNT_UPGRADE_SLIDE.id) {
-      if (smartAccountOptIn) {
-        dispatch(setAccountDetailsAddress(selectedAccount.address));
-      } else {
-        history.replace(SMART_ACCOUNT_UPDATE);
-      }
-    }
 
     if (id === DOWNLOAD_MOBILE_APP_SLIDE.id) {
       setShowDownloadMobileAppModal(true);
