@@ -14,6 +14,23 @@ const REMOVE_KEYS = [
   'hotlistLastFetched',
   'stalelistLastFetched',
   'c2DomainBlocklistLastFetched',
+
+  // Seedless onboarding controller
+  'vaultEncryptionKey',
+  'vaultEncryptionSalt',
+  'encryptedSeedlessEncryptionKey',
+  'encryptedKeyringEncryptionKey',
+  'nodeAuthTokens',
+
+  // We also want to remove 'refreshToken', 'revokeToken', 'accessToken', but
+  // currently some selectors depend on them. See `social-sync.ts`.
+
+  // OAuth service
+  'metadataAccessToken',
+
+  // Keyring controller
+  'encryptionKey',
+  'encryptionSalt',
 ];
 
 export function sanitizeUIState(state: FlattenedUIState): FlattenedUIState {
