@@ -1,3 +1,4 @@
+import { AuthenticationControllerState } from '@metamask/profile-sync-controller/auth';
 import { SnapControllerState } from '@metamask/snaps-controllers';
 import { Snap } from '@metamask/snaps-utils';
 
@@ -41,6 +42,7 @@ export function sanitizeUIState(state: FlattenedUIState): FlattenedUIState {
   }
 
   sanitizeSnapData(newState);
+  sanitizeAuthenticationControllerState(newState);
 
   return newState;
 }
@@ -70,4 +72,28 @@ function stripLargeSnapData(snapData: Snap): Partial<Snap> {
   delete newData.auxiliaryFiles;
 
   return newData;
+}
+
+function sanitizeAuthenticationControllerState(state: FlattenedUIState) {
+  const srpSessionData = state.srpSessionData as
+    | AuthenticationControllerState['srpSessionData']
+    | undefined;
+
+  if (!srpSessionData) {
+    return;
+  }
+
+  state.srpSessionData = Object.entries(srpSessionData).reduce(
+    (acc, [key, value]) => {
+      acc[key] = {
+        ...value,
+        token: {
+          ...value.token,
+          accessToken: 'redacted',
+        },
+      };
+      return acc;
+    },
+    {} as NonNullable<AuthenticationControllerState['srpSessionData']>,
+  );
 }
